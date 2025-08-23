@@ -1,0 +1,60 @@
+# Xcode
+.DS_Store
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/*.lock
+
+# Archives
+*.xcarchive
+
+# Temporary files
+*.moved-aside
+*.swp
+*.swo
+*.tmp
+
+# Xcode specific
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# SwiftPM binary artifacts
+*.xcframework
+
+# IDE specific
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Custom
+EKAlert/Presentation/Extensions/ErrorLocalization.swift
