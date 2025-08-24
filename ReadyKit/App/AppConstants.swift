@@ -81,7 +81,7 @@ enum AppConstants {
     }
 
     enum MaxExpirationYearsFromNow {
-        static let value = 15 // Maximum expiration date set to 15 years from now
+        static let value = 25 // Maximum expiration date set to 25 years from now
     }
 
 }
