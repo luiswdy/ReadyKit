@@ -33,7 +33,7 @@
 		E9CB04972E4F6029007ACF2B /* Exceptions for "ReadyKit" folder in "ReadyKit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"/Localized: Info.plist",
+				Info.plist,
 			);
 			target = E950ABF82E4867990046CF5C /* ReadyKit */;
 		};
@@ -417,7 +417,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReadyKit/ReadyKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = W86V7AHLF3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -453,7 +453,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReadyKit/ReadyKit.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = W86V7AHLF3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
