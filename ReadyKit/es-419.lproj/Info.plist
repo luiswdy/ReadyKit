@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Conceda acceso a la biblioteca de fotos para configurar kits de emergencia y artículos.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Conceda acceso a la cámara para tomar fotos de kits de emergencia y artículos.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>io.wdy.ReadyKitApp.refresh</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+</dict>
+</plist>
