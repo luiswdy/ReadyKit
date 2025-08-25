@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  ReadyKit
+
+  Created by Luis Wu on 8/25/25.
+  
+*/
+"NSPhotoLibraryUsageDescription" = "La aplicación requiere acceso a la biblioteca de fotos para asignar una imagen a un kit de emergencia o un artículo.";
+"NSCameraUsageDescription" = "La aplicación requiere acceso a la cámara para tomar una foto para un kit de emergencia o un artículo.";

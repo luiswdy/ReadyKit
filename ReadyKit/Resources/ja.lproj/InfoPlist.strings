@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  ReadyKit
+
+  Created by Luis Wu on 8/25/25.
+  
+*/
+"NSPhotoLibraryUsageDescription" = "アプリは、緊急避難キットやアイテムに画像を割り当てるためにフォトライブラリへのアクセスを必要とします。";
+"NSCameraUsageDescription" = "アプリは、緊急避難キットやアイテムの写真を撮影するためにカメラへのアクセスを必要とします。";

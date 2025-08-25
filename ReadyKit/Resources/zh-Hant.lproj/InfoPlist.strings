@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  ReadyKit
+
+  Created by Luis Wu on 8/25/25.
+  
+*/
+"NSPhotoLibraryUsageDescription" = "應用程式需要存取相簿以為緊急避難包或物品指定圖片。";
+"NSCameraUsageDescription" = "應用程式需要存取相機以拍攝緊急避難包或物品的照片。";
