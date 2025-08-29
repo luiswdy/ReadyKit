@@ -66,19 +66,6 @@ class MainTabViewModel {
         }
     }
 
-    func saveUserPreferences(_ preferences: UserPreferences) async {
-        let request = SaveUserPreferencesRequest(preferences: preferences)
-        let result = dependencyContainer.saveUserPreferencesUseCase.execute(request: request)
-
-        switch result {
-        case .success:
-            userPreferences = preferences
-            rescheduleReminders()
-        case .failure(let error):
-            errorMessage = "Failed to save preferences: \(error.localizedDescription)"
-        }
-    }
-
     private func rescheduleReminders() {
         let result = dependencyContainer.rescheduleRemindersUseCase.execute()
         switch result {

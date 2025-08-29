@@ -19,6 +19,7 @@ struct ReadyKitApp: App {
     init() {
         let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
         let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
+        logger.logInfo("storeUrl: \(storeUrl)")
         let schema = Schema([
             EmergencyKitModel.self,
             ItemModel.self,
@@ -51,12 +52,12 @@ struct ReadyKitApp: App {
                         return
                     }
 
-                    var result = dependencyContainer.reminderScheduler.removePendingReminders()
+                    var result = dependencyContainer.reminderScheduler.removeNonSnoozePendingReminders()
                     switch result {
                     case .success:
-                        logger.logInfo("Successfully removed all pending reminders.")
+                        logger.logInfo("Successfully removed non-snooze pending reminders.")
                     case .failure(let error):
-                        logger.logError("Failed to remove pending reminders: \(error.localizedDescription)")
+                        logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
                     }
                     result = dependencyContainer.reminderScheduler.scheduleReminders()
                     switch result {

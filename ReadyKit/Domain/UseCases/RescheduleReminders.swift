@@ -15,7 +15,7 @@ final class RescheduleRemindersUseCase {
     }
     
     func execute() -> RescheduleRemindersResult {
-        var result = reminderScheduler.removePendingReminders()
+        var result = reminderScheduler.removeNonSnoozePendingReminders()
         switch result {
         case .success:
             break

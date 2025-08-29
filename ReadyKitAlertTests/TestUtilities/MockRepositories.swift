@@ -126,6 +126,12 @@ final class MockEmergencyKitRepository: EmergencyKitRepository {
 // MARK: - Mock Item Repository
 
 final class MockItemRepository: ItemRepository {
+    func fetchItemWithEarliestExpiration() throws -> ReadyKit.Item? {
+        // Implement if needed for tests
+        // currently not used in tests
+        return nil
+    }
+
     private var items: [Item] = []
     
     // Test configuration

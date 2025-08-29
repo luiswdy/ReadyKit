@@ -11,4 +11,5 @@ protocol ItemRepository {
     func fetchExpired() throws -> [Item]
     func save(item: Item, to emergencyKit: EmergencyKit) throws
     func delete(item: Item) throws
+    func fetchItemWithEarliestExpiration() throws -> Item?
 }

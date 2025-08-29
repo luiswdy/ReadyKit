@@ -37,9 +37,41 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 
         logger.logInfo("didReceive called - Notification ID: \(identifier), Action: \(actionIdentifier)")
 
-        if identifier.hasPrefix("regularCheckReminder") && response.actionIdentifier == "SNOOZE_ACTION" {
-            logger.logInfo("User snoozed regular check reminder")
-            scheduleSnoozeNotification(originalIdentifier: identifier)
+        // Leverage UNNotificationDismissActionIdentifier to detect dismissal of regular check and expiring item reminder
+        // and then reschedule reminders accordingly
+        if (identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
+            || identifier == AppConstants.Notification.RequestIdentifier.expiringItemsReminder
+            || identifier == AppConstants.Notification.RequestIdentifier.earliestExpiringItemAlert)
+            && actionIdentifier == UNNotificationDismissActionIdentifier {
+            logger.logInfo("User dismissed the notification")
+            let removeReminderResult = reminderScheduler.removeNonSnoozePendingReminders()
+            switch removeReminderResult {
+            case .success:
+                logger.logInfo("Successfully removed non-snooze pending reminders")
+            case .failure(let error):
+                logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
+            }
+            let scheduleReminderResult = reminderScheduler.scheduleReminders()
+            switch scheduleReminderResult {
+            case .success:
+                logger.logInfo("Successfully scheduled reminders after dismissal")
+            case .failure(let error):
+                logger.logError("Failed to schedule reminders after dismissal: \(error.localizedDescription)")
+            }
+        }
+
+        // handling regular check snooze action
+        if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix) || identifier == AppConstants.Notification.RequestIdentifier.snoozedRegularCheck {
+            switch actionIdentifier {
+            case AppConstants.Notification.ActionIdentifier.snoozeADay:
+                scheduleSnoozeNotification(originalIdentifier: identifier,
+                                           snoozeInterval: AppConstants.Notification.RegularCheck.snoozeIntervalADay)
+            case AppConstants.Notification.ActionIdentifier.snoozeAnHour:
+                scheduleSnoozeNotification(originalIdentifier: identifier,
+                                           snoozeInterval: AppConstants.Notification.RegularCheck.snoozeIntervalAnHour)
+            default:
+                logger.logInfo("Unknown action for regular check notification: \(actionIdentifier)")
+            }
         } else if actionIdentifier == UNNotificationDefaultActionIdentifier {
             logger.logInfo("User tapped notification (default action)")
             // Handle default tap action here if needed
@@ -50,17 +82,17 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         completionHandler()
     }
 
-    private func scheduleSnoozeNotification(originalIdentifier: String) {
+    private func scheduleSnoozeNotification(originalIdentifier: String, snoozeInterval: TimeInterval) {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Emergency Items Regular Check Reminder", comment: "Title for emergency items regular check reminder notification")
         content.body = String(localized: "⏰ It's time to check your emergency items!", comment: "Body for emergency items regular check reminder notification")
         content.sound = .default
-        content.categoryIdentifier = "REGULAR_CHECK_CATEGORY"
+        content.categoryIdentifier = AppConstants.Notification.CategoryIdentifier.regularCheck
 
-        // Schedule for 24 hours from now
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+        // Schedule for `snoozeInternal` seconds from now
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeInterval, repeats: false)
 
-        let snoozeIdentifier = "\(originalIdentifier)-snoozed-\(Date().timeIntervalSince1970)"
+        let snoozeIdentifier = "\(AppConstants.Notification.RequestIdentifier.snoozedRegularCheck)"
         let request = UNNotificationRequest(identifier: snoozeIdentifier, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { [weak self] error in

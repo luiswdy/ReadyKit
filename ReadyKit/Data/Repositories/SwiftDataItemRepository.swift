@@ -120,4 +120,21 @@ final class SwiftDataItemRepository: ItemRepository {
             throw SwiftDataItemRepositoryError.deleteError(error)
         }
     }
+
+    func fetchItemWithEarliestExpiration() throws -> Item? {
+        assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
+        let descriptor = FetchDescriptor<ItemModel>(
+            predicate: #Predicate<ItemModel> { $0.expirationDate != nil },
+            sortBy: [SortDescriptor(\.expirationDate, order: .forward)]
+        )
+        do {
+            if let itemModel = try context.fetch(descriptor).first {
+                return try ItemMapper.toDomain(itemModel)
+            } else {
+                return nil
+            }
+        } catch {
+            return nil
+        }
+    }
 }

@@ -120,6 +120,11 @@ final class MockAppBadgeManager: AppBadgeManager {
 // MARK: - Mock Reminder Scheduler
 
 final class MockReminderScheduler: ReminderScheduler {
+    func scheduleDummyRegularCheckRemindersAndExpiredReminders() {
+        // Implement if needed for tests
+        // Currently left empty as it's not the focus of most tests
+    }
+    
     
     // Test state tracking
     private(set) var removePendingRemindersCalled = false
@@ -130,7 +135,7 @@ final class MockReminderScheduler: ReminderScheduler {
     var shouldSucceed = true
     var errorToReturn: Error = DefaultReminderSchedulerError.failedToScheduleReminders(NSError(domain: "TestError", code: 1, userInfo: nil))
     
-    func removePendingReminders() -> ReminderSchedulerResult {
+    func removeNonSnoozePendingReminders() -> ReminderSchedulerResult {
         removePendingRemindersCalled = true
         callCount += 1
         

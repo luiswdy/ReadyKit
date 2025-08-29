@@ -7,6 +7,6 @@
 typealias ReminderSchedulerResult = Result<Void, Error>
 
 protocol ReminderScheduler {
-    func removePendingReminders() -> ReminderSchedulerResult
+    func removeNonSnoozePendingReminders() -> ReminderSchedulerResult
     func scheduleReminders() -> ReminderSchedulerResult
 }

@@ -69,15 +69,12 @@ enum AppConstants {
         static let filePrefix = "ReadyKit_"
         static let fileSize: UInt64 = 1024 * 1024 // 1 MB
         static let fileCount = 5 // Keep last 5 log files
-        #if DEBUG
         static let level: LogLevel = .info
-        #else
-        static let level: LogLevel = .warning
-        #endif
     }
 
     enum BackgroundMode {
         static let taskIdentifier = "io.wdy.ReadyKitApp.refresh"
+        static let earliestBeginDate: Date =  Date(timeIntervalSinceNow: 1 * 24 * 60 * 60) // one day from now
     }
 
     enum MaxExpirationYearsFromNow {
@@ -92,13 +89,23 @@ enum AppConstants {
 
         enum CategoryIdentifier {
             static let regularCheck = "REGULAR_CHECK_CATEGORY"
-            static let expiringItems = "EXPIRING_ITEMS_CATEGORY"
+            static let expiringItemsReminder = "EXPIRING_ITEMS_REMINDER_CATEGORY"
+            static let earliestExpiringItemAlert = "EARLIEST_EXPIRING_ITEM_ALERT_CATEGORY"
         }
 
         enum RegularCheck {
             static let quarterlyMonths = [1, 4, 7, 10]
             static let halfYearlyMonths = [1, 7]
             static let yearlyMonth = 1
+            static let snoozeIntervalAnHour: TimeInterval = 1 * 60 * 60 // 1 hour in seconds
+            static let snoozeIntervalADay: TimeInterval = 24 * 60 * 60 // 1 day
+        }
+
+        enum RequestIdentifier {
+            static let regularCheckPrefix = "regular-check-"
+            static let expiringItemsReminder = "expiringItemsReminder"
+            static let snoozedRegularCheck = "snoozed-regular-check"
+            static let earliestExpiringItemAlert = "earliest-expiring-item-alert"
         }
     }
 }

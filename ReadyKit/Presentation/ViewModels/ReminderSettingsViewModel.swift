@@ -121,22 +121,6 @@ final class ReminderSettingsViewModel {
         }
     }
 
-    func rescheduleNotifications() async -> Bool {
-        isLoading = true
-        errorMessage = nil
-
-        let result = dependencyContainer.rescheduleRemindersUseCase.execute()
-        switch result {
-        case .success:
-            isLoading = false
-            return true
-        case .failure(let error):
-            errorMessage = "Failed to reschedule notifications: \(error.localizedDescription)"
-            isLoading = false
-            return false
-        }
-    }
-
     func refreshAll() async {
         isLoading = true
         errorMessage = nil

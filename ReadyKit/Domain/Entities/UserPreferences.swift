@@ -26,6 +26,7 @@ enum RegularCheckFrequency: String, Codable {
 
 struct UserPreferences {
     var dailyNotificationTime: DateComponents = DateComponents(
+        timeZone: .current,
         hour: AppConstants.UserPreferences.defaultNotificationHour,
         minute: AppConstants.UserPreferences.defaultNotificationMinute,
         second: AppConstants.UserPreferences.defaultNotificationSecond

@@ -31,10 +31,15 @@ final class DefaultReminderScheduler: ReminderScheduler {
         self.logger = logger
 
         registerNotificationCategories()
+
     }
 
-    func removePendingReminders() -> ReminderSchedulerResult {
-        notificationCenter.removeAllPendingNotificationRequests()
+    func removeNonSnoozePendingReminders() -> ReminderSchedulerResult {
+        Task {
+            let requests = await notificationCenter.pendingNotificationRequests()
+            let identifiers = requests.map { $0.identifier }.filter { $0 != AppConstants.Notification.RequestIdentifier.snoozedRegularCheck }
+            notificationCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+        }
         return .success(())
     }
 
@@ -46,6 +51,7 @@ final class DefaultReminderScheduler: ReminderScheduler {
             return .failure(DefaultReminderSchedulerError.failedToLoadPreferences(error))
         case .success(let userPreferences):
             do {
+                scheduleFirstExpiringItemAlert(userPreferences: userPreferences)
                 try scheduleExpiringItemsReminder(with: userPreferences)
                 scheduleRegularCheckReminder(with: userPreferences)
             } catch {
@@ -72,19 +78,69 @@ final class DefaultReminderScheduler: ReminderScheduler {
             identifier: AppConstants.Notification.CategoryIdentifier.regularCheck,
             actions: [snoozeAnHourAction, snoozeADayAction],
             intentIdentifiers: [],
-            options: []
+            options: [.customDismissAction]
         )
 
-        let expiringItemsCategory = UNNotificationCategory(
-            identifier: AppConstants.Notification.CategoryIdentifier.expiringItems,
-            actions: [snoozeAnHourAction],
+        let expiryReminderCategory = UNNotificationCategory(
+            identifier: AppConstants.Notification.CategoryIdentifier.expiringItemsReminder,
+            actions: [],
             intentIdentifiers: [],
-            options: []
+            options: [.customDismissAction]
         )
-        UNUserNotificationCenter.current().setNotificationCategories([regularCheckCategory, expiringItemsCategory])
+
+        let earliestExpiringItemAlertCategory = UNNotificationCategory(
+            identifier: AppConstants.Notification.CategoryIdentifier.earliestExpiringItemAlert,
+            actions: [],
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+
+        UNUserNotificationCenter.current().setNotificationCategories([regularCheckCategory, expiryReminderCategory, earliestExpiringItemAlertCategory])
     }
 
-    private func scheduleExpiringItemsReminder(with userPreferences: UserPreferences) throws -> Void {
+    private func scheduleFirstExpiringItemAlert(userPreferences: UserPreferences) {
+        do {
+            guard let earliestExpiration = try repository.fetchItemWithEarliestExpiration()?.expirationDate else {
+                logger.logInfo("No items with expiration dates found; skipping first expiring item alert scheduling.")
+                return
+            }
+
+            let now = Date()
+            guard earliestExpiration > now && Calendar.current.date(byAdding: .day, value: -userPreferences.expiryReminderLeadDays, to: earliestExpiration)! > now else {
+                logger.logInfo("Earliest expiring item is already expired or within lead time; skipping first expiring item alert scheduling.")
+                return
+            }
+
+            // schedule for (earliestExpiration - lead time) at dailyNotificationTime
+            var dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: earliestExpiration)
+            dateComponents.hour = userPreferences.dailyNotificationTime.hour
+            dateComponents.minute = userPreferences.dailyNotificationTime.minute
+            dateComponents.second = 0
+            let leadTimeDate = Calendar.current.date(byAdding: .day, value: -userPreferences.expiryReminderLeadDays, to: earliestExpiration)!
+            let leadTimeComponents = Calendar.current.dateComponents([.year, .month, .day], from: leadTimeDate)
+            dateComponents.year = leadTimeComponents.year
+            dateComponents.month = leadTimeComponents.month
+            dateComponents.day = leadTimeComponents.day
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+
+            let content = UNMutableNotificationContent()
+            content.title = String(localized: "Expiring items detected", comment: "Title for first expiring item alert notification")
+            content.body = String(localized: "You have items that are expiring soon. Please open the app and check your emergency kit.", comment: "Body for first expiring item alert notification")
+            content.sound = .default
+            content.categoryIdentifier = AppConstants.Notification.CategoryIdentifier.earliestExpiringItemAlert
+
+            let request = UNNotificationRequest(
+                identifier: AppConstants.Notification.RequestIdentifier.earliestExpiringItemAlert,
+                content: content,
+                trigger: trigger
+            )
+            notificationCenter.add(request)
+        } catch {
+            logger.logError("Failed to fetch first expiring items: \(error.localizedDescription)")
+        }
+    }
+
+    private func scheduleExpiringItemsReminder(with userPreferences: UserPreferences) throws {
         let content = UNMutableNotificationContent()
         let expiringItemCount = try repository.fetchExpiring(within: userPreferences.expiryReminderLeadDays).count
         let expiredItemCount = try repository.fetchExpired().count
@@ -92,15 +148,18 @@ final class DefaultReminderScheduler: ReminderScheduler {
         let summary = ItemSummaryFormatter.summaryMessage(expiringCount: expiringItemCount, expiredCount: expiredItemCount)
         content.title = String(localized: "Emergency Items Expiry Reminder", comment: "Title for emergency items expiry reminder notification")
         content.body = summary
-        content.sound = .defaultCritical
+        content.sound = .default
         content.badge = NSNumber(value: (expiringItemCount + expiredItemCount))
+        content.categoryIdentifier = AppConstants.Notification.CategoryIdentifier.expiringItemsReminder
 
         // Ensure timezone is properly set for local time
-        var dateComponents = userPreferences.dailyNotificationTime
-        dateComponents.timeZone = TimeZone.current // Explicitly set to current timezone
+        let dateComponents = userPreferences.dailyNotificationTime
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "expiringItemsReminder", content: content, trigger: trigger)
+        let request = UNNotificationRequest(
+            identifier: AppConstants.Notification.RequestIdentifier.expiringItemsReminder,
+            content: content,
+            trigger: trigger)
         notificationCenter.add(request)
     }
 
@@ -109,7 +168,6 @@ final class DefaultReminderScheduler: ReminderScheduler {
         content.title = String(localized: "Emergency Items Regular Check Reminder", comment: "Title for emergency items regular check reminder notification")
         content.body = String(localized: "⏰ It's time to check your emergency items!", comment: "Body for emergency items regular check reminder notification")
         content.sound = .default
-
         content.categoryIdentifier = AppConstants.Notification.CategoryIdentifier.regularCheck
 
         var dateComponentsList: [DateComponents] = []
@@ -149,13 +207,16 @@ final class DefaultReminderScheduler: ReminderScheduler {
             triggers = [trigger]
         }
         for (index, trigger) in triggers.enumerated() {
-            let request = UNNotificationRequest(identifier: "regularCheckReminder-\(index)", content: content, trigger: trigger)
+            let request = UNNotificationRequest(
+                identifier: "\(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)\(index)",
+                content: content,
+                trigger: trigger)
             notificationCenter.add(request) { [weak self] errorOrNil in
                 guard let self = self else { return }
                 if let error = errorOrNil {
                     self.logger.logError("Failed to schedule regular check reminder with identifier: regularCheckReminder-\(index), error: \(error.localizedDescription)")
                 } else {
-                    self.logger.logInfo("Scheduled regular check reminder with identifier: regularCheckReminder-\(index)")
+                    self.logger.logInfo("Scheduled regular check reminder with identifier: \(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)\(index)")
                 }
             }
         }

@@ -2972,6 +2972,41 @@
         }
       }
     },
+    "Expiring items detected" : {
+      "comment" : "Title for first expiring item alert notification",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expiring items detected"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se detectaron artículos próximos a vencer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期限が近づいているアイテムを検出しました。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens próximos do vencimento detectados."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偵測到即將過期的物品"
+          }
+        }
+      }
+    },
     "Export Database Files" : {
       "localizations" : {
         "en" : {
@@ -3414,40 +3449,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "移除緊急避難包照片失敗：%@"
-          }
-        }
-      }
-    },
-    "Failed to reschedule notifications: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to reschedule notifications: %@"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error al reprogramar las notificaciones: %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通知の再スケジュールに失敗しました: %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Falha ao reagendar notificações: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新排程通知失敗：%@"
           }
         }
       }
@@ -6306,6 +6307,12 @@
     "Snooze for a day" : {
       "comment" : "Snooze button for notifications: a day",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snooze for a day"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6335,6 +6342,12 @@
     "Snooze for an hour" : {
       "comment" : "Snooze button for notifications: an hour",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snooze for an hour"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6872,6 +6885,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每年"
+          }
+        }
+      }
+    },
+    "You have items that are expiring soon. Please open the app and check your emergency kit." : {
+      "comment" : "Body for first expiring item alert notification",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have items that are expiring soon. Please open the app and check your emergency kit."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiene artículos próximos a vencer. Por favor, abra la aplicación y revise su kit de emergencia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期限が近づいているアイテムがあります。アプリを開いて防災セットを確認してください。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você tem itens prestes a vencer. Por favor, abra o aplicativo e verifique seu kit de emergência."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您有即將過期的物品。請打開 App 確認您的緊急避難包。"
           }
         }
       }
