@@ -84,4 +84,21 @@ enum AppConstants {
         static let value = 25 // Maximum expiration date set to 25 years from now
     }
 
+    enum Notification {
+        enum ActionIdentifier {
+            static let snoozeAnHour = "SNOOZE_AN_HOUR_ACTION"
+            static let snoozeADay = "SNOOZE_A_DAY_ACTION"
+        }
+
+        enum CategoryIdentifier {
+            static let regularCheck = "REGULAR_CHECK_CATEGORY"
+            static let expiringItems = "EXPIRING_ITEMS_CATEGORY"
+        }
+
+        enum RegularCheck {
+            static let quarterlyMonths = [1, 4, 7, 10]
+            static let halfYearlyMonths = [1, 7]
+            static let yearlyMonth = 1
+        }
+    }
 }

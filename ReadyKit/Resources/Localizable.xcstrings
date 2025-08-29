@@ -6303,6 +6303,64 @@
         }
       }
     },
+    "Snooze for a day" : {
+      "comment" : "Snooze button for notifications: a day",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posponer 1 día"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日間スヌーズ"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adiar por 1 dia"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "延後一天"
+          }
+        }
+      }
+    },
+    "Snooze for an hour" : {
+      "comment" : "Snooze button for notifications: an hour",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posponer 1 hora"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1時間スヌーズ"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adiar por 1 hora"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "延後一小時"
+          }
+        }
+      }
+    },
     "Something went wrong" : {
       "localizations" : {
         "en" : {

@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 final class DependencyContainer: ObservableObject {
 
@@ -24,6 +25,8 @@ final class DependencyContainer: ObservableObject {
         notificationCenter: UNUserNotificationCenter.current(),
         userPreferencesRepository: userPreferencesRepository
     )
+
+    lazy var notificationDelegate: NotificationDelegate = NotificationDelegate(reminderScheduler: reminderScheduler)
 
     lazy var backgroundModeService: BackgroundModeService = IOSBackgroundModeService()
 
@@ -111,10 +114,14 @@ final class DependencyContainer: ObservableObject {
         regularCheck: AppConstants.UserPreferences.defaultRegularCheckFrequency
     )
 
-    init(modelContext: ModelContext) {
+    private let userNotificationCenter: UNUserNotificationCenter
+
+    init(modelContext: ModelContext, userNotificationCenter: UNUserNotificationCenter = .current()) {
         // Initialize ModelContext for SwiftData
+        self.userNotificationCenter = userNotificationCenter
         self.modelContext = modelContext
         self.emergencyKitRepository = SwiftDataEmergencyKitRepository(context: modelContext)
         self.itemRepository = SwiftDataItemRepository(context: modelContext)
+        self.userNotificationCenter.delegate = notificationDelegate
     }
 }

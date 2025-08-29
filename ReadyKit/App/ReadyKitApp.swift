@@ -23,7 +23,7 @@ struct ReadyKitApp: App {
             EmergencyKitModel.self,
             ItemModel.self,
         ])
-        
+
         // Create a single ModelConfiguration with both URL and schema
         let modelConfiguration = ModelConfiguration(schema: schema, url: storeUrl, cloudKitDatabase: .none)
 
@@ -34,9 +34,10 @@ struct ReadyKitApp: App {
             logger.logFatal("Could not create ModelContainer: \(error)")
             fatalError("Could not create ModelContainer: \(error)")
         }
+
         self.dependencyContainer.reminderBackgroundTaskScheduler.registerTask()
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -44,7 +45,7 @@ struct ReadyKitApp: App {
                 .environmentObject(dependencyContainer)
                 .onAppear {
                     let checkBackgroundModeResult = dependencyContainer.checkBackgroundModeUseCase.getBackgroundRefreshStatus()
-                    
+
                     guard checkBackgroundModeResult == .available else {
                         logger.logInfo("Background refresh is not available.")
                         return
