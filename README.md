@@ -198,7 +198,7 @@ ReadyKit/
 
 ### Requirements
 - Xcode 15 or later
-- iOS 16.0 or later
+- iOS 17.0 or later
 - Swift 5.8 or later
 
 ### Build & Run
