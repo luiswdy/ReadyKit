@@ -204,7 +204,7 @@ ReadyKit/
 ### Build & Run
 1. Clone this repository:
    ```sh
-   git clone <repo-url>
+   git clone https://github.com/luiswdy/ReadyKit
    ```
 2. Open `ReadyKit.xcodeproj` in Xcode.
 3. Select a simulator or device and press **Run** (⌘R).
