@@ -62,7 +62,7 @@ struct ItemFormView: View {
     // Common units for quick selection
     // Common units for quick selection - breaking up the expression to fix compiler issue
     private var commonUnits: [String] {
-        let units = [
+        var units = [
             String(localized: "pieces", comment: "Unit type: pieces"),
             String(localized: "cans", comment: "Unit type: cans"),
             String(localized: "bottles", comment: "Unit type: bottles"),
@@ -70,6 +70,12 @@ struct ItemFormView: View {
             String(localized: "packets", comment: "Unit type: packets"),
             String(localized: "tablets", comment: "Unit type: tablets")
         ]
+
+        // Add Traditional Chinese only unit (as box can refer to 箱 and 盒)
+        if Locale.current.language.languageCode?.identifier == "zh" {
+            units.append("箱")   // don't need translation
+        }
+
         return units
     }
 
