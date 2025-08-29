@@ -35,7 +35,7 @@ ReadyKit is not intended for children under the age of 13. We do not knowingly c
 We may update this Privacy Policy from time to time. Changes will be posted within the App or in the project repository. Your continued use of the App after changes are posted constitutes your acceptance of the revised policy.
 
 ## 7. Open Source and License
-ReadyKit is open source and licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license. See LICENSE.md for details.
+ReadyKit is open source and licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**. See LICENSE.md for details.
 
 ## 8. Contact
 If you have any questions or concerns about this Privacy Policy, please open an issue in the project repository or contact the maintainers.
