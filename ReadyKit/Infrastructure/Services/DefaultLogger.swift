@@ -7,6 +7,10 @@
 
 import Foundation
 
+#if DEBUG
+import os
+#endif
+
 enum LogLevel: Int, Comparable, CaseIterable {
     case debug = 0, info, warning, error, fatal
 
@@ -67,14 +71,7 @@ final class DefaultLogger: Logger {
 
     // MARK: - Public Logging Methods
 
-    func log(_ message: String, level: LogLevel) {
-        guard level >= logLevel else { return }
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        let logEntry = "[\(timestamp)] [\(level.description)] \(message)\n"
-        queue.async { [weak self] in
-            self?.write(logEntry, isFatal: false)
-        }
-    }
+
 
     func logInfo(_ message: String) { log(message, level: .info) }
     func logWarning(_ message: String) { log(message, level: .warning) }
@@ -165,5 +162,32 @@ final class DefaultLogger: Logger {
         currentFileURL = directory.appendingPathComponent("\(filePrefix)0.\(fileExtension)")
         FileManager.default.createFile(atPath: currentFileURL.path, contents: nil)
         openFileHandle()
+    }
+
+    // MARK: - Private Logging Method
+
+    private func log(_ message: String, level: LogLevel) {
+        guard level >= logLevel else { return }
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        let logEntry = "[\(timestamp)] [\(level.description)] \(message)\n"
+        queue.async { [weak self] in
+            self?.write(logEntry, isFatal: false)
+        }
+
+        #if DEBUG
+        let log = OSLog(subsystem: Bundle.main.bundleIdentifier ?? "io.wdy.ReadyKitApp", category: "DefaultLogger")
+        let osLogType: OSLogType
+        switch level {
+        case .debug:
+            osLogType = .debug
+        case .info, .warning:
+            osLogType = .info
+        case .error:
+            osLogType = .error
+        case .fatal:
+            osLogType = .fault
+        }
+        os_log("%{public}@", log: log, type: osLogType, logEntry)
+        #endif
     }
 }
