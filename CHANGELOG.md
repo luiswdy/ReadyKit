@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-09-07
+
+### Added
+- Notification snooze actions (hour/day) for regular check reminders.
+- NotificationDelegate to handle notification actions and rescheduling.
+- First expiring item alert notification.
+- NotificationTester utility for local notification testing.
+- Additional localized strings for notification actions and alerts.
+- New CODE_OF_CONDUCT.md file.
+
+### Changed
+- Bumped version and build numbers to 1.1.0.
+- Enhanced notification scheduling mechanism: improved regular check and expiry reminders, added earliest expiring item alerts.
+- Improved privacy descriptions and localization.
+- Updated license to CC BY-NC-SA 4.0 with additional data usage restrictions.
+- Logging now uses OSLog in debug builds.
+- Minimum iOS requirement updated to 17.0.
+
+### Fixed
+- Corrected logic to avoid removing snoozed reminders when rescheduling notifications.
+- Improved timezone handling for notification scheduling.
+
+### Removed
+- Deprecated or unused notification rescheduling error messages.
+
 ## [1.0.0] - 2025-08-29
 
 ### Added
