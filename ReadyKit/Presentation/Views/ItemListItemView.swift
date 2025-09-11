@@ -12,6 +12,8 @@ struct ItemListItemView: View {
     let item: Item
     let expirationStatus: (text: String, color: Color)
     let onTap: () -> Void
+    let onDuplicate: () -> Void
+    let onDelete: () -> Void
 
     @State private var showingPhotoViewer = false
 
@@ -70,6 +72,19 @@ struct ItemListItemView: View {
         .onTapGesture {
             onTap()
         }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button {
+                onDuplicate()
+            } label: {
+                Label(String(localized: "Copy"), systemImage: "doc.on.doc")
+            }
+            .tint(.blue)
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label(String(localized: "Delete"), systemImage: "trash")
+            }
+        }
         .fullScreenCover(isPresented: $showingPhotoViewer) {
             if let photoData = item.photo {
                 PhotoViewerView(imageData: photoData)
@@ -90,7 +105,9 @@ struct ItemListItemView: View {
     ItemListItemView(
         item: expiredItem,
         expirationStatus: (text: "Expired 15 days ago", color: .red),
-        onTap: { print("Tapped expired item: \(expiredItem.name)") }
+        onTap: { print("Tapped expired item: \(expiredItem.name)") },
+        onDuplicate: { print("Duplicated expired item: \(expiredItem.name)") },
+        onDelete: { print("Deleted expired item: \(expiredItem.name)") }
     )
     .padding()
 }
@@ -107,7 +124,9 @@ struct ItemListItemView: View {
     ItemListItemView(
         item: expiringSoonItem,
         expirationStatus: (text: "Expires in 7 days", color: .orange),
-        onTap: { print("Tapped expiring item: \(expiringSoonItem.name)") }
+        onTap: { print("Tapped expiring item: \(expiringSoonItem.name)") },
+        onDuplicate: { print("Duplicated expiring item: \(expiringSoonItem.name)") },
+        onDelete: { print("Deleted expiring item: \(expiringSoonItem.name)") }
     )
     .padding()
 }
@@ -124,7 +143,9 @@ struct ItemListItemView: View {
     ItemListItemView(
         item: freshItem,
         expirationStatus: (text: "Expires in 2 years", color: .green),
-        onTap: { print("Tapped fresh item: \(freshItem.name)") }
+        onTap: { print("Tapped fresh item: \(freshItem.name)") },
+        onDuplicate: { print("Duplicated fresh item: \(freshItem.name)") },
+        onDelete: { print("Deleted fresh item: \(freshItem.name)") }
     )
     .padding()
 }
@@ -141,7 +162,9 @@ struct ItemListItemView: View {
     ItemListItemView(
         item: noExpirationItem,
         expirationStatus: (text: "No expiration", color: .secondary),
-        onTap: { print("Tapped non-expiring item: \(noExpirationItem.name)") }
+        onTap: { print("Tapped non-expiring item: \(noExpirationItem.name)") },
+        onDuplicate: { print("Duplicated non-expiring item: \(noExpirationItem.name)") },
+        onDelete: { print("Deleted non-expiring item: \(noExpirationItem.name)") }
     )
     .padding()
 }
@@ -158,7 +181,9 @@ struct ItemListItemView: View {
     ItemListItemView(
         item: itemWithoutNotes,
         expirationStatus: (text: "Expires in 5 years", color: .green),
-        onTap: { print("Tapped item without notes: \(itemWithoutNotes.name)") }
+        onTap: { print("Tapped item without notes: \(itemWithoutNotes.name)") },
+        onDuplicate: { print("Duplicated item without notes: \(itemWithoutNotes.name)") },
+        onDelete: { print("Deleted item without notes: \(itemWithoutNotes.name)") }
     )
     .padding()
 }
@@ -177,7 +202,9 @@ struct ItemListItemView: View {
             ItemListItemView(
                 item: item,
                 expirationStatus: status,
-                onTap: { print("Tapped item \(index): \(item.name)") }
+                onTap: { print("Tapped item \(index): \(item.name)") },
+                onDuplicate: { print("Duplicated item \(index): \(item.name)") },
+                onDelete: { print("Deleted item \(index): \(item.name)") }
             )
         }
     }

@@ -68,6 +68,11 @@ final class DependencyContainer: ObservableObject {
         repository: emergencyKitRepository
     )
 
+    // Register DuplicateItemInEmergencyKit use case
+    lazy var duplicateItemInEmergencyKitUseCase: DuplicateItemInEmergencyKitUseCase = {
+        DuplicateItemInEmergencyKitUseCase(itemRepository: itemRepository)
+    }()
+
     // MARK: - Use Cases - User Preferences
     lazy var loadUserPreferencesUseCase = LoadUserPreferencesUseCase(
         userPreferencesRepository: userPreferencesRepository
@@ -103,7 +108,7 @@ final class DependencyContainer: ObservableObject {
         reminderScheduler: reminderScheduler,
         backgroundModeService: backgroundModeService
     )
-    
+
     // MARK: - Default Values
     private let defaultUserPreferences = UserPreferences(
         dailyNotificationTime: DateComponents(

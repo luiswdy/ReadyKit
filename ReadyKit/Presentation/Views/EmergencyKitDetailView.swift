@@ -12,7 +12,7 @@ struct EmergencyKitDetailViewBody: View {
     private let dependencyContainer: DependencyContainer
     @State private var viewModel: EmergencyKitDetailViewModel
     @State private var showingDeleteConfirmation = false
-    @State private var pendingDeleteOffsets: IndexSet? = nil
+    @State private var pendingDeleteItem: Item? = nil
 
     init(emergencyKit: EmergencyKit, dependencyContainer: DependencyContainer) {
         self.dependencyContainer = dependencyContainer
@@ -91,6 +91,19 @@ struct EmergencyKitDetailViewBody: View {
                 Text(errorMessage)
             }
         }
+        .alert("Delete Item?", isPresented: $showingDeleteConfirmation, actions: {
+            Button(String(localized: "Delete"), role: .destructive) {
+                if let item = pendingDeleteItem {
+                    _ = viewModel.deleteItem(item)
+                    pendingDeleteItem = nil
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteItem = nil
+            }
+        }, message: {
+            Text("Are you sure you want to delete this item?")
+        })
     }
 
     private var itemsListView: some View {
@@ -98,40 +111,17 @@ struct EmergencyKitDetailViewBody: View {
             ForEach(viewModel.filteredItems, id: \.id) { item in
                 ItemListItemView(
                     item: item,
-                    expirationStatus: viewModel.formatExpirationStatus(for: item)
-                ) {
-                    viewModel.selectItem(item)
-                }
+                    expirationStatus: viewModel.formatExpirationStatus(for: item),
+                    onTap: { viewModel.selectItem(item) },
+                    onDuplicate: { viewModel.duplicateItem(item) },
+                    onDelete: {
+                        pendingDeleteItem = item
+                        showingDeleteConfirmation = true
+                    }
+                )
             }
-            .onDelete(perform: confirmDeleteItems)
         }
         .listStyle(PlainListStyle())
-        .alert("Delete Item?", isPresented: $showingDeleteConfirmation, actions: {
-            Button(String(localized: "Delete"), role: .destructive) {
-                if let offsets = pendingDeleteOffsets {
-                    deleteItems(offsets: offsets)
-                    pendingDeleteOffsets = nil
-                }
-            }
-            Button("Cancel", role: .cancel) {
-                pendingDeleteOffsets = nil
-            }
-        }, message: {
-            Text("Are you sure you want to delete this item?")
-        })
-    }
-
-
-    private func confirmDeleteItems(offsets: IndexSet) {
-        pendingDeleteOffsets = offsets
-        showingDeleteConfirmation = true
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        for index in offsets {
-            let item = viewModel.filteredItems[index]
-            _ = viewModel.deleteItem(item) // view model shows the error if it fails
-        }
     }
 }
 

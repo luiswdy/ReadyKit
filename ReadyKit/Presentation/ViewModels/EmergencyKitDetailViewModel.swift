@@ -134,6 +134,7 @@ final class EmergencyKitDetailViewModel {
         return result
     }
 
+    // TODO: this method is not used currently, consider removing it
     func updateItem(_ item: Item) -> Bool {
         isLoading = true
         let request = EditItemInEmergencyKitRequest(
@@ -162,7 +163,7 @@ final class EmergencyKitDetailViewModel {
             itemId: item.id,
             emergencyKitId: emergencyKit.id
         )
-        
+
         let result = container.deleteItemInEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
@@ -243,6 +244,19 @@ final class EmergencyKitDetailViewModel {
             errorMessage = "Failed to update emergency kit: \(error.localizedDescription)"
             isLoading = false
             return false
+        }
+    }
+
+    func duplicateItem(_ item: Item) {
+        defer { isLoading = false }
+
+        isLoading = true
+        errorMessage = nil
+        do {
+            try container.duplicateItemInEmergencyKitUseCase.execute(item: item, emergencyKit: emergencyKit)
+            refreshEmergencyKit()
+        } catch {
+            errorMessage = "Failed to copy an item: \(error.localizedDescription)"
         }
     }
 

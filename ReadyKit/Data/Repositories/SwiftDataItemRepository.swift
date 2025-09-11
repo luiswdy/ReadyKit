@@ -35,14 +35,14 @@ final class SwiftDataItemRepository: ItemRepository {
             throw SwiftDataItemRepositoryError.fetchError(error)
         }
     }
-    
+
     func fetchExpiring(within days: Int) throws -> [Item] {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
         let now = Date()
         guard let expiringDate = Calendar.current.date(byAdding: .day, value: days, to: now) else {
             throw SwiftDataItemRepositoryError.fetchExpiringError
         }
-        
+
         let descriptor = FetchDescriptor<ItemModel>(
             predicate: #Predicate<ItemModel> { item in
                 if let expirationDate = item.expirationDate {
@@ -52,7 +52,7 @@ final class SwiftDataItemRepository: ItemRepository {
                 }
             }
         )
-        
+
         do {
             let items = try context.fetch(descriptor)
             return try items.map { try ItemMapper.toDomain($0) }
@@ -60,7 +60,7 @@ final class SwiftDataItemRepository: ItemRepository {
             throw SwiftDataItemRepositoryError.fetchError(error)
         }
     }
-    
+
     func fetchExpired() throws -> [Item] {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
         let now = Date()
@@ -80,7 +80,7 @@ final class SwiftDataItemRepository: ItemRepository {
             throw SwiftDataItemRepositoryError.fetchError(error)
         }
     }
-    
+
     func save(item: Item, to emergencyKit: EmergencyKit) throws {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
         let emergencyKitModel = EmergencyKitMapper.toModel(emergencyKit)
@@ -105,7 +105,7 @@ final class SwiftDataItemRepository: ItemRepository {
             throw SwiftDataItemRepositoryError.saveError(error)
         }
     }
-    
+
     func delete(item: Item) throws {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
         let itemId = item.id
@@ -135,6 +135,26 @@ final class SwiftDataItemRepository: ItemRepository {
             }
         } catch {
             return nil
+        }
+    }
+
+    func duplicate(item: Item, to emergencyKit: EmergencyKit) throws {
+        assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
+        let emergencyKitModel = EmergencyKitMapper.toModel(emergencyKit)
+        let duplicatedItem = try Item(
+            name: item.name,
+            expirationDate: item.expirationDate,
+            notes: item.notes,
+            quantityValue: item.quantityValue,
+            quantityUnitName: item.quantityUnitName,
+            photo: item.photo
+        )
+        let itemModel = ItemMapper.toModel(duplicatedItem, emergencyKit: emergencyKitModel)
+        context.insert(itemModel)
+        do {
+            try context.save()
+        } catch {
+            throw SwiftDataItemRepositoryError.saveError(error)
         }
     }
 }

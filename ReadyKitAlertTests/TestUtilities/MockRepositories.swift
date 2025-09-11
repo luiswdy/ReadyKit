@@ -126,6 +126,12 @@ final class MockEmergencyKitRepository: EmergencyKitRepository {
 // MARK: - Mock Item Repository
 
 final class MockItemRepository: ItemRepository {
+    func duplicate(item: ReadyKit.Item, to emergencyKit: ReadyKit.EmergencyKit) throws {
+        // Implement if needed for tests
+        // currently not used in tests
+        return
+    }
+
     func fetchItemWithEarliestExpiration() throws -> ReadyKit.Item? {
         // Implement if needed for tests
         // currently not used in tests
