@@ -87,6 +87,17 @@ final class EmergencyKitDetailViewModel {
         !emergencyKit.items.isEmpty
     }
 
+    /// All available emergency kits for item moving
+    var allEmergencyKits: [EmergencyKit] {
+        let result = container.fetchAllEmergencyKitUseCase.execute()
+        switch result {
+        case .success(let emergencyKits):
+            return emergencyKits
+        case .failure:
+            return []
+        }
+    }
+
     // MARK: - Photo Handling
     /// The photo associated with the emergency kit (bind to UI)
     var photo: Data? {
@@ -257,6 +268,53 @@ final class EmergencyKitDetailViewModel {
             refreshEmergencyKit()
         } catch {
             errorMessage = "Failed to copy an item: \(error.localizedDescription)"
+        }
+    }
+
+    func moveItem(_ item: Item, to targetKit: EmergencyKit) -> Result<Void, Error> {
+        // Don't move if it's the same kit
+        if targetKit.id == emergencyKit.id {
+            return .success(())
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        // First, delete the item from the current emergency kit
+        let deleteRequest = DeleteItemInEmergencyKitRequest(
+            itemId: item.id,
+            emergencyKitId: emergencyKit.id
+        )
+
+        let deleteResult = container.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
+        switch deleteResult {
+        case .success:
+            // Item deleted successfully, now add it to the target emergency kit
+            let addRequest = AddItemToEmergencyKitRequest(
+                emergencyKitId: targetKit.id,
+                itemName: item.name,
+                itemQuantityValue: item.quantityValue,
+                itemQuantityUnitName: item.quantityUnitName,
+                itemExpirationDate: item.expirationDate,
+                itemNotes: item.notes,
+                itemPhoto: item.photo
+            )
+
+            let addResult = container.addItemToEmergencyKitUseCase.execute(request: addRequest)
+            switch addResult {
+            case .success:
+                refreshEmergencyKit()
+                isLoading = false
+                return .success(())
+            case .failure(let error):
+                errorMessage = "Failed to move item: \(error.localizedDescription)"
+                isLoading = false
+                return .failure(error)
+            }
+        case .failure(let error):
+            errorMessage = "Failed to move item: \(error.localizedDescription)"
+            isLoading = false
+            return .failure(error)
         }
     }
 

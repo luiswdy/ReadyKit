@@ -53,24 +53,26 @@ struct EmergencyKitDetailViewBody: View {
             // Refresh emergency kit data after adding item
             viewModel.refreshEmergencyKit()
         }) {
-            ItemFormView { name, quantity, unit, expirationDate, notes, photo in
-                let result = viewModel.addItem(
-                    name: name,
-                    quantityValue: quantity,
-                    quantityUnit: unit,
-                    expirationDate: expirationDate,
-                    notes: notes,
-                    photo: photo
-                )
+            ItemFormView(
+                onSave: { name, quantity, unit, expirationDate, notes, photo in
+                    let result = viewModel.addItem(
+                        name: name,
+                        quantityValue: quantity,
+                        quantityUnit: unit,
+                        expirationDate: expirationDate,
+                        notes: notes,
+                        photo: photo
+                    )
 
-                switch result {
-                case .success:
-                    viewModel.showingAddItemForm = false
-                case .failure:
-                    break // viewModel will handle showing the error
+                    switch result {
+                    case .success:
+                        viewModel.showingAddItemForm = false
+                    case .failure:
+                        break // viewModel will handle showing the error
+                    }
+                    return result
                 }
-                return result
-            }
+            )
         }
         .sheet(isPresented: $viewModel.showingItemDetail, onDismiss: {
             // Refresh emergency kit data when item detail view is dismissed

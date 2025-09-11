@@ -11,6 +11,10 @@ import PhotosUI
 /// Form for adding and editing items
 struct ItemFormView: View {
     let onSave: (String, Int, String, Date?, String?, Data?) async -> Result<Void, Error>
+    let onMoveItem: ((Item, EmergencyKit) async -> Result<Void, Error>)?
+    let currentKit: EmergencyKit?
+    let availableKits: [EmergencyKit]
+    let existingItem: Item?
 
     // Optional initial values for editing mode
     private let initialName: String?
@@ -36,11 +40,16 @@ struct ItemFormView: View {
     @State private var showingImagePicker = false
     @State private var showingPhotoLibrary = false
     @State private var showingCameraPermissionAlert = false
+    @State private var selectedKit: EmergencyKit?
 
     @Environment(\.dismiss) private var dismiss
 
     init(
         onSave: @escaping (String, Int, String, Date?, String?, Data?) async -> Result<Void, Error>,
+        onMoveItem: ((Item, EmergencyKit) async -> Result<Void, Error>)? = nil,
+        currentKit: EmergencyKit? = nil,
+        availableKits: [EmergencyKit] = [],
+        existingItem: Item? = nil,
         initialName: String? = nil,
         initialQuantityText: String? = nil,
         initialUnit: String? = nil,
@@ -50,6 +59,10 @@ struct ItemFormView: View {
         initialPhotoData: Data? = nil
     ) {
         self.onSave = onSave
+        self.onMoveItem = onMoveItem
+        self.currentKit = currentKit
+        self.availableKits = availableKits
+        self.existingItem = existingItem
         self.initialName = initialName
         self.initialQuantityText = initialQuantityText
         self.initialUnit = initialUnit
@@ -82,108 +95,14 @@ struct ItemFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Item Details") {
-                    TextField("Item Name", text: $name)
-                        .textInputAutocapitalization(.words)
+                itemDetailsSection
+                expirationSection
+                photoSection
+                notesSection
 
-                    HStack {
-                        TextField("Quantity", text: $quantityText)
-                            .keyboardType(.numberPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                        Picker("Unit", selection: $selectedPickerUnit) {
-                            Text("Select Unit").tag("") // Empty option
-                            ForEach(commonUnits, id: \.self) { unitOption in
-                                Text(unitOption).tag(unitOption)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .onChange(of: selectedPickerUnit) { _, newValue in
-                            if !newValue.isEmpty {
-                                unit = newValue
-                            }
-                        }
-                    }
-
-                    TextField("Custom Unit", text: $unit)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .textFieldStyle(.roundedBorder)
-                        .overlay(
-                            HStack {
-                                Spacer()
-                                if !unit.isEmpty {
-                                    Button(action: {
-                                        unit = ""
-                                        selectedPickerUnit = "" // Ensure picker selection is cleared
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.secondary)
-                                    }
-                                    .buttonStyle(BorderlessButtonStyle())
-                                    .padding(.trailing, 8)
-                                }
-                            }
-                        )
-                        .onChange(of: unit) { _, newValue in
-                            // If user types in the text field, clear the picker selection
-                            if !newValue.isEmpty && selectedPickerUnit != newValue {
-                                selectedPickerUnit = ""
-                            }
-                        }
-                }
-
-                Section("Expiration") {
-                    Toggle("Has Expiration Date", isOn: $hasExpirationDate)
-
-                    if hasExpirationDate {
-                        DatePicker(
-                            "Expiration Date",
-                            selection: $expirationDate,
-                            displayedComponents: .date
-                        )
-                    }
-                }
-
-                Section("Photo") {
-                    Button {
-                        showingPhotoOptions = true
-                    } label: {
-                        HStack {
-                            let hasPhoto = photoData != nil && UIImage(data: photoData!) != nil
-                            if hasPhoto {
-                                let uiImage = UIImage(data: photoData!)!
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
-                                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius))
-                                Button(role: .destructive) {
-                                    photoData = nil
-                                    selectedPhoto = nil
-                                } label: {
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
-                                }
-                                .buttonStyle(BorderlessButtonStyle())
-                            } else {
-                                let placeholder = RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
-                                    .fill(Color.gray.opacity(AppConstants.UI.opacity))
-                                    .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
-                                    .overlay(
-                                        Image(systemName: "photo")
-                                            .foregroundColor(.gray)
-                                    )
-                                placeholder
-                            }
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-
-                Section("Notes") {
-                    TextField("Notes (optional)", text: $notes, axis: .vertical)
-                        .lineLimit(3...6)
+                // Show emergency kit section only when editing an existing item
+                if isEditing {
+                    emergencyKitSection
                 }
             }
             .navigationTitle("Add Item")
@@ -222,27 +141,7 @@ struct ItemFormView: View {
                 }
             }
             .confirmationDialog("Select Photo", isPresented: $showingPhotoOptions, titleVisibility: .visible) {
-                if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    Button("Take Photo") {
-                        CameraPermissionHelper.checkCameraPermissionAndShowCamera(
-                            onAuthorized: { showingImagePicker = true },
-                            onDenied: { showingCameraPermissionAlert = true }
-                        )
-                    }
-                }
-
-                Button("Choose from Library") {
-                    showingPhotoLibrary = true
-                }
-
-                if photoData != nil {
-                    Button("Remove Photo", role: .destructive) {
-                        photoData = nil
-                        selectedPhoto = nil
-                    }
-                }
-
-                Button("Cancel", role: .cancel) {}
+                photoDialogButtons
             }
             .fullScreenCover(isPresented: $showingImagePicker) {
                 ImagePicker(sourceType: .camera) { imageData in
@@ -266,32 +165,207 @@ struct ItemFormView: View {
             }
         }
         .onAppear {
-            // Set initial values from parameters
-            if let initialName = initialName {
-                name = initialName
+            setupInitialValues()
+        }
+    }
+
+    // MARK: - View Components
+
+    private var isEditing: Bool {
+        existingItem != nil
+    }
+
+    private var itemDetailsSection: some View {
+        Section("Item Details") {
+            TextField("Item Name", text: $name)
+                .textInputAutocapitalization(.words)
+
+            quantityAndUnitRow
+            customUnitField
+        }
+    }
+
+    private var quantityAndUnitRow: some View {
+        HStack {
+            TextField("Quantity", text: $quantityText)
+                .keyboardType(.numberPad)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+
+            unitPicker
+        }
+    }
+
+    private var unitPicker: some View {
+        Picker("Unit", selection: $selectedPickerUnit) {
+            Text("Select Unit").tag("") // Empty option
+            ForEach(commonUnits, id: \.self) { unitOption in
+                Text(unitOption).tag(unitOption)
             }
-            if let initialQuantityText = initialQuantityText {
-                quantityText = initialQuantityText
-            }
-            if let initialUnit = initialUnit {
-                unit = initialUnit
-            } else if unit.isEmpty {
-                unit = String(localized: "pieces", comment: "Unit type: pieces")
-            }
-            if let initialHasExpirationDate = initialHasExpirationDate {
-                hasExpirationDate = initialHasExpirationDate
-            }
-            if let initialExpirationDate = initialExpirationDate {
-                expirationDate = initialExpirationDate
-            }
-            if let initialNotes = initialNotes {
-                notes = initialNotes
-            }
-            if let initialPhotoData = initialPhotoData {
-                photoData = initialPhotoData
+        }
+        .pickerStyle(MenuPickerStyle())
+        .onChange(of: selectedPickerUnit) { oldValue, newValue in
+            if !newValue.isEmpty {
+                unit = newValue
             }
         }
     }
+
+    private var customUnitField: some View {
+        TextField("Custom Unit", text: $unit)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .textFieldStyle(.roundedBorder)
+            .overlay(
+                HStack {
+                    Spacer()
+                    if !unit.isEmpty {
+                        Button(action: {
+                            unit = ""
+                            selectedPickerUnit = "" // Ensure picker selection is cleared
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.trailing, 8)
+                    }
+                }
+            )
+            .onChange(of: unit) { _, newValue in
+                // If user types in the text field, clear the picker selection
+                if !newValue.isEmpty && selectedPickerUnit != newValue {
+                    selectedPickerUnit = ""
+                }
+            }
+    }
+
+    private var expirationSection: some View {
+        Section("Expiration") {
+            Toggle("Has Expiration Date", isOn: $hasExpirationDate)
+
+            if hasExpirationDate {
+                DatePicker(
+                    "Expiration Date",
+                    selection: $expirationDate,
+                    displayedComponents: .date
+                )
+            }
+        }
+    }
+
+    private var photoSection: some View {
+        Section("Photo") {
+            Button {
+                showingPhotoOptions = true
+            } label: {
+                photoDisplay
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+
+    private var photoDisplay: some View {
+        HStack {
+            let hasPhoto = photoData != nil && UIImage(data: photoData!) != nil
+            if hasPhoto {
+                existingPhotoView
+            } else {
+                photoPlaceholder
+            }
+        }
+    }
+
+    private var existingPhotoView: some View {
+        Group {
+            let uiImage = UIImage(data: photoData!)!
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius))
+            Button(role: .destructive) {
+                photoData = nil
+                selectedPhoto = nil
+            } label: {
+                Image(systemName: "trash")
+                    .foregroundColor(.red)
+            }
+            .buttonStyle(BorderlessButtonStyle())
+        }
+    }
+
+    private var photoPlaceholder: some View {
+        RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+            .fill(Color.gray.opacity(AppConstants.UI.opacity))
+            .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
+            .overlay(
+                Image(systemName: "photo")
+                    .foregroundColor(.gray)
+            )
+    }
+
+    private var notesSection: some View {
+        Section("Notes") {
+            TextField("Notes (optional)", text: $notes, axis: .vertical)
+                .lineLimit(3...6)
+        }
+    }
+
+    private var emergencyKitSection: some View {
+        Section("Emergency Kit") {
+            kitPicker
+            kitSelectionDisplay
+        }
+    }
+
+    private var kitPicker: some View {
+        Picker("Select Kit", selection: $selectedKit) {
+            ForEach(availableKits, id: \.id) { kit in
+                Text(kit.name).tag(Optional(kit))
+            }
+        }
+        .pickerStyle(MenuPickerStyle())
+    }
+
+    private var kitSelectionDisplay: some View {
+        Group {
+            if let selectedKit = selectedKit {
+                Text("Selected Kit: \(selectedKit.name)")
+                    .foregroundColor(.secondary)
+            } else {
+                Text("No kit selected")
+                    .foregroundColor(.gray)
+            }
+        }
+    }
+
+    private var photoDialogButtons: some View {
+        Group {
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button("Take Photo") {
+                    CameraPermissionHelper.checkCameraPermissionAndShowCamera(
+                        onAuthorized: { showingImagePicker = true },
+                        onDenied: { showingCameraPermissionAlert = true }
+                    )
+                }
+            }
+
+            Button("Choose from Library") {
+                showingPhotoLibrary = true
+            }
+
+            if photoData != nil {
+                Button("Remove Photo", role: .destructive) {
+                    photoData = nil
+                    selectedPhoto = nil
+                }
+            }
+
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    // MARK: - Helper Methods
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -338,106 +412,65 @@ struct ItemFormView: View {
         let finalExpirationDate = hasExpirationDate ? expirationDate : nil
         let finalNotes = trimmedNotes.isEmpty ? nil : trimmedNotes
 
-        let result = await onSave(trimmedName, quantity, trimmedUnit, finalExpirationDate, finalNotes, photoData)
-        switch result {
-        case .success:
-            break
-        case .failure(let error):
-            errorMessage = "Failed to save item: \(error.localizedDescription)"
+        // If editing an existing item, we might want to move it to a new kit
+        if let existingItem = existingItem, let onMoveItem = onMoveItem, let currentKit = currentKit, currentKit != selectedKit {
+            // Move item to selected kit
+            let result = await onMoveItem(existingItem, selectedKit!)
+            switch result {
+            case .success:
+                // Item moved, now save the new details
+                let saveResult = await onSave(trimmedName, quantity, trimmedUnit, finalExpirationDate, finalNotes, photoData)
+                switch saveResult {
+                case .success:
+                    break
+                case .failure(let error):
+                    errorMessage = "Failed to save item: \(error.localizedDescription)"
+                }
+            case .failure(let error):
+                errorMessage = "Failed to move item: \(error.localizedDescription)"
+            }
+        } else {
+            // New item or no kit change, just save the item
+            let result = await onSave(trimmedName, quantity, trimmedUnit, finalExpirationDate, finalNotes, photoData)
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                errorMessage = "Failed to save item: \(error.localizedDescription)"
+            }
         }
 
         isSaving = false
     }
 
-    // Remove the checkCameraPermissionAndShowCamera and openAppSettings methods - they are now handled by CameraPermissionHelper
-}
+    private func setupInitialValues() {
+        // Set initial values from parameters
+        if let initialName = initialName {
+            name = initialName
+        }
+        if let initialQuantityText = initialQuantityText {
+            quantityText = initialQuantityText
+        }
+        if let initialUnit = initialUnit {
+            unit = initialUnit
+        } else if unit.isEmpty {
+            // Set a default unit for new items to ensure canSave validation passes
+            unit = "pieces"
+        }
+        if let initialHasExpirationDate = initialHasExpirationDate {
+            hasExpirationDate = initialHasExpirationDate
+        }
+        if let initialExpirationDate = initialExpirationDate {
+            expirationDate = initialExpirationDate
+        }
+        if let initialNotes = initialNotes {
+            notes = initialNotes
+        }
+        if let initialPhotoData = initialPhotoData {
+            photoData = initialPhotoData
+        }
 
-#Preview("Empty Form") {
-    ItemFormView { name, quantity, unit, expirationDate, notes, photo in
-        // Mock save action - shows basic empty form state
-        print("Creating item: \(name), \(quantity) \(unit)")
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        return .success(())
+        // Initialize selectedKit with current kit
+        selectedKit = currentKit
     }
-}
-
-#Preview("Pre-filled Food Item") {
-    ItemFormView(
-        onSave: { name, quantity, unit, expirationDate, notes, photo in
-            print("Creating food item: \(name), \(quantity) \(unit)")
-            if let expirationDate = expirationDate {
-                print("Expires: \(expirationDate)")
-            }
-            try? await Task.sleep(nanoseconds: 800_000_000)
-            return .success(())
-        },
-        initialName: "Canned Tomatoes",
-        initialQuantityText: "6",
-        initialUnit: "cans",
-        initialHasExpirationDate: true,
-        initialExpirationDate: Calendar.current.date(byAdding: .year, value: 2, to: Date()),
-        initialNotes: "Store in cool, dry place. Great for pasta sauce and soups."
-    )
-}
-
-#Preview("Medical Supply") {
-    ItemFormView(
-        onSave: { name, quantity, unit, expirationDate, notes, photo in
-            print("Creating medical item: \(name), \(quantity) \(unit)")
-            if let expirationDate = expirationDate {
-                print("Critical expiration: \(expirationDate)")
-            }
-            try? await Task.sleep(nanoseconds: 600_000_000)
-            return .success(())
-        },
-        initialName: "Ibuprofen",
-        initialQuantityText: "50",
-        initialUnit: "tablets",
-        initialHasExpirationDate: true,
-        initialExpirationDate: Calendar.current.date(byAdding: .month, value: 18, to: Date()),
-        initialNotes: "200mg tablets. Take with food. Check expiration regularly."
-    )
-}
-
-#Preview("Non-Expiring Item") {
-    ItemFormView(
-        onSave: { name, quantity, unit, expirationDate, notes, photo in
-            print("Creating non-expiring item: \(name), \(quantity) \(unit)")
-            try? await Task.sleep(nanoseconds: 400_000_000)
-            return .success(())
-        },
-        initialName: "Emergency Flashlight",
-        initialQuantityText: "2",
-        initialUnit: "pieces",
-        initialHasExpirationDate: false,
-        initialNotes: "LED flashlights with hand crank. No batteries required. Test monthly."
-    )
-}
-
-#Preview("Validation Error") {
-    ItemFormView(
-        onSave: { name, quantity, unit, expirationDate, notes, photo in
-            print("Attempting to save invalid item: \(name)")
-            try? await Task.sleep(nanoseconds: 300_000_000)
-            return .failure(ItemValidationError.nilExpirationDate) // Always fail to show error state
-        },
-        initialName: "Test Item",
-        initialQuantityText: "1",
-        initialUnit: "piece"
-    )
-}
-
-#Preview("Past Expiration Date") {
-    ItemFormView(
-        onSave: { name, quantity, unit, expirationDate, notes, photo in
-            print("This should trigger validation error for past date")
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            return .success(())
-        },
-        initialName: "Old Medicine",
-        initialQuantityText: "10",
-        initialUnit: "tablets",
-        initialHasExpirationDate: true,
-        initialExpirationDate: Calendar.current.date(byAdding: .day, value: -30, to: Date())
-    )
 }

@@ -20,7 +20,7 @@ enum ItemError: Error, Equatable {
     case noSuchItem(_ providedId: UUID)
 }
 
-struct Item: Equatable {
+struct Item: Equatable, Hashable {
     let id: UUID
     var name: String
     var expirationDate: Date?

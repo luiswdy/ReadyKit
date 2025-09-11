@@ -262,9 +262,9 @@ struct ItemDetailViewBody: View {
             }
 
             Section("Photo") {
-                Button {
+                Button(action: {
                     showingPhotoOptions = true
-                } label: {
+                }) {
                     PhotoDisplayContent(
                         editedPhoto: currentPhotoData,
                         onDelete: {
@@ -282,6 +282,23 @@ struct ItemDetailViewBody: View {
             Section("Notes") {
                 TextField("Notes (optional)", text: $viewModel.editedNotes, axis: .vertical)
                     .lineLimit(3...6)
+            }
+
+            Section("Emergency Kit") {
+                Picker("Move to Kit", selection: $viewModel.selectedKit) {
+                    ForEach(viewModel.allEmergencyKits, id: \.id) { kit in
+                        Text(kit.name).tag(Optional(kit))
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+
+                if let selectedKit = viewModel.selectedKit {
+                    Text("Selected Kit: \(selectedKit.name)")
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("No kit selected")
+                        .foregroundColor(.gray)
+                }
             }
         }
     }

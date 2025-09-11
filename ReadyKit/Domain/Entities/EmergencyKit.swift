@@ -18,7 +18,7 @@ enum EmergencyKitError: Error, Equatable {
     case noSuchEmergencyKit(_ providedId: UUID)
 }
 
-struct EmergencyKit {
+struct EmergencyKit: Equatable, Hashable {
     let id: UUID
     var name: String
     var items: [Item] = []

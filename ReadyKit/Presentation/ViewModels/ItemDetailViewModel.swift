@@ -30,7 +30,10 @@ class ItemDetailViewModel {
     var editedExpirationDate: Date?
     var editedNotes: String
     var editedPhoto: Data?
-    
+
+    // Kit selection for moving items between kits during editing
+    var selectedKit: EmergencyKit?
+
     var hasExpirationDate: Bool {
         didSet {
             if hasExpirationDate && editedExpirationDate == nil {
@@ -40,6 +43,17 @@ class ItemDetailViewModel {
                 // Clear the date when toggling off
                 editedExpirationDate = nil
             }
+        }
+    }
+
+    // MARK: - Computed Properties
+    var allEmergencyKits: [EmergencyKit] {
+        let result = dependencyContainer.fetchAllEmergencyKitUseCase.execute()
+        switch result {
+        case .success(let kits):
+            return kits
+        case .failure:
+            return []
         }
     }
 
@@ -68,10 +82,12 @@ class ItemDetailViewModel {
         editedNotes = item.notes ?? ""
         editedPhoto = item.photo
         hasExpirationDate = item.expirationDate != nil
+        selectedKit = emergencyKit // Initialize with current kit
     }
 
     func cancelEditing() {
         isEditing = false
+        selectedKit = nil
         clearError()
     }
 
@@ -99,26 +115,79 @@ class ItemDetailViewModel {
                 photo: editedPhoto
             )
 
-            let request = EditItemInEmergencyKitRequest(
-                emergencyKitId: emergencyKit.id,
-                updatedItem: updatedItem
-            )
+            // Check if we need to move the item to a different kit
+            if let selectedKit = selectedKit, selectedKit.id != emergencyKit.id {
+                // Move item to selected kit first
+                let moveResult = await moveItemToKit(updatedItem, to: selectedKit)
+                switch moveResult {
+                case .success:
+                    item = updatedItem
+                    emergencyKit = selectedKit
+                    isEditing = false
+                    isLoading = false
+                    return .success(())
+                case .failure(let error):
+                    isLoading = false
+                    return .failure(error)
+                }
+            } else {
+                // Just update the item in the current kit
+                let request = EditItemInEmergencyKitRequest(
+                    emergencyKitId: emergencyKit.id,
+                    updatedItem: updatedItem
+                )
 
-            let result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
-            switch result {
-            case .success:
-                item = updatedItem
-                isEditing = false
-                isLoading = false
-                return .success(())
-            case .failure(let error):
-                errorMessage = "Failed to save changes: \(error.localizedDescription)"
-                isLoading = false
-                return .failure(error)
+                let result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
+                switch result {
+                case .success:
+                    item = updatedItem
+                    isEditing = false
+                    isLoading = false
+                    return .success(())
+                case .failure(let error):
+                    errorMessage = "Failed to save changes: \(error.localizedDescription)"
+                    isLoading = false
+                    return .failure(error)
+                }
             }
         } catch {
             errorMessage = "Failed to save changes: \(error.localizedDescription)"
             isLoading = false
+            return .failure(error)
+        }
+    }
+
+    private func moveItemToKit(_ item: Item, to targetKit: EmergencyKit) async -> Result<Void, Error> {
+        // First, delete the item from the current emergency kit
+        let deleteRequest = DeleteItemInEmergencyKitRequest(
+            itemId: item.id,
+            emergencyKitId: emergencyKit.id
+        )
+
+        let deleteResult = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
+        switch deleteResult {
+        case .success:
+            // Item deleted successfully, now add it to the target emergency kit
+            let addRequest = AddItemToEmergencyKitRequest(
+                emergencyKitId: targetKit.id,
+                itemName: item.name,
+                itemQuantityValue: item.quantityValue,
+                itemQuantityUnitName: item.quantityUnitName,
+                itemExpirationDate: item.expirationDate,
+                itemNotes: item.notes,
+                itemPhoto: item.photo
+            )
+
+            let addResult = dependencyContainer.addItemToEmergencyKitUseCase.execute(request: addRequest)
+            switch addResult {
+            case .success:
+                return .success(())
+            case .failure(let error):
+                errorMessage = "Failed to move item: \(error.localizedDescription)"
+                return .failure(error)
+            }
+        case .failure(let error):
+            errorMessage = "Failed to move item: \(error.localizedDescription)"
             return .failure(error)
         }
     }
