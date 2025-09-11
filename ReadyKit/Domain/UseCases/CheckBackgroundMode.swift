@@ -1,5 +1,5 @@
 //
-//  CheckBackgroundModeUseCase.swift
+//  CheckBackgroundMode.swift
 //  ReadyKit
 //
 //  Created by Luis Wu on 8/15/25.
