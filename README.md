@@ -9,7 +9,8 @@ ReadyKit is an open-source iOS application designed to help you prepare for emer
 ### Features
 
 - **Create and Manage Kits**: Organize your emergency supplies by creating multiple kits for different locations (e.g., home, car, office).
-- **Item Management**: Add, edit, and track items in each kit. Mark items as packed and see your progress at a glance.
+- **Item Management**: Add, edit, duplicate, and track items in each kit. Mark items as packed and see your progress at a glance.
+- **Item Duplication**: Quickly duplicate existing items using swipe actions for efficient kit management.
 - **Customizable Reminders**: Set reminders to check and update your kits regularly, ensuring your supplies are always ready.
 - **Privacy by Design**: All data is stored locally on your device. No external servers, no data collection, no tracking. Your information is yours alone.
 - **Open Source**: Built with transparency and community collaboration in mind.
@@ -104,6 +105,11 @@ Feature: Item Management
     Given an emergency kit contains one or more items
     When the user deletes a specific item from the kit
     Then the item should be removed from the kit
+
+  Scenario: Duplicate an Item in an Emergency Kit
+    Given an emergency kit contains one or more items
+    When the user duplicates a specific item from the kit using swipe actions or contextual menu
+    Then a new item with the same properties but a unique ID should be created and added to the kit
 
 Feature: Preferences and Notifications
 
