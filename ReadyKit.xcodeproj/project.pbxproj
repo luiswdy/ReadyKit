@@ -30,6 +30,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E9C889802E76AF66005BCF02 /* Exceptions for "xctestplans" folder in "ReadyKit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ReadyKit.xctestplan,
+			);
+			target = E950ABF82E4867990046CF5C /* ReadyKit */;
+		};
 		E9CB04972E4F6029007ACF2B /* Exceptions for "ReadyKit" folder in "ReadyKit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -56,6 +63,14 @@
 		E950AC152E48679A0046CF5C /* ReadyKitAlertUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ReadyKitAlertUITests;
+			sourceTree = "<group>";
+		};
+		E9C8897F2E76AF5C005BCF02 /* xctestplans */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E9C889802E76AF66005BCF02 /* Exceptions for "xctestplans" folder in "ReadyKit" target */,
+			);
+			path = xctestplans;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,6 +103,7 @@
 		E950ABF02E4867990046CF5C = {
 			isa = PBXGroup;
 			children = (
+				E9C8897F2E76AF5C005BCF02 /* xctestplans */,
 				E950ABFB2E4867990046CF5C /* ReadyKit */,
 				E950AC0B2E48679A0046CF5C /* ReadyKitAlertTests */,
 				E950AC152E48679A0046CF5C /* ReadyKitAlertUITests */,
@@ -122,6 +138,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				E950ABFB2E4867990046CF5C /* ReadyKit */,
+				E9C8897F2E76AF5C005BCF02 /* xctestplans */,
 			);
 			name = ReadyKit;
 			packageProductDependencies = (
