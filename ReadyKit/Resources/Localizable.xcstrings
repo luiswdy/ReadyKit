@@ -1621,6 +1621,34 @@
         }
       }
     },
+    "Currently in: %@" : {
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualmente en: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のセット：%@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atualmente em: %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前位於：%@"
+          }
+        }
+      }
+    },
     "Custom Unit" : {
       "localizations" : {
         "en" : {
@@ -6437,40 +6465,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選取的檔案不是有效的資料庫檔案"
-          }
-        }
-      }
-    },
-    "Selected Kit: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selected Kit: %@"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kit seleccionado: %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択中の 防災セット：%@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kit selecionado: %@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已選取的緊急避難包：%@"
           }
         }
       }
