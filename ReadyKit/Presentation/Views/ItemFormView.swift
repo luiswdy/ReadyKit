@@ -99,11 +99,6 @@ struct ItemFormView: View {
                 expirationSection
                 photoSection
                 notesSection
-
-                // Show emergency kit section only when editing an existing item
-                if isEditing {
-                    emergencyKitSection
-                }
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -311,13 +306,6 @@ struct ItemFormView: View {
         }
     }
 
-    private var emergencyKitSection: some View {
-        Section("Emergency Kit") {
-            kitPicker
-            kitSelectionDisplay
-        }
-    }
-
     private var kitPicker: some View {
         Picker("Select Kit", selection: $selectedKit) {
             ForEach(availableKits, id: \.id) { kit in
@@ -325,18 +313,6 @@ struct ItemFormView: View {
             }
         }
         .pickerStyle(MenuPickerStyle())
-    }
-
-    private var kitSelectionDisplay: some View {
-        Group {
-            if let selectedKit = selectedKit {
-                Text("Selected Kit: \(selectedKit.name)")
-                    .foregroundColor(.secondary)
-            } else {
-                Text("No kit selected")
-                    .foregroundColor(.gray)
-            }
-        }
     }
 
     private var photoDialogButtons: some View {

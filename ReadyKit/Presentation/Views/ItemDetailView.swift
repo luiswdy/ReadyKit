@@ -293,7 +293,7 @@ struct ItemDetailViewBody: View {
                 .pickerStyle(MenuPickerStyle())
 
                 if let selectedKit = viewModel.selectedKit {
-                    Text("Selected Kit: \(selectedKit.name)")
+                    Text("Currently in: \(selectedKit.name)")
                         .foregroundColor(.secondary)
                 } else {
                     Text("No kit selected")

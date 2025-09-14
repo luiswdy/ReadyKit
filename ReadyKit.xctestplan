@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "4164FEB3-726E-4669-BD75-8FF5672CC7D3",
+      "name" : "Test Scheme Action",
+      "options" : {
+        "language" : "en"
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en",
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:ReadyKit.xcodeproj",
+      "identifier" : "E950ABF82E4867990046CF5C",
+      "name" : "ReadyKit"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:ReadyKit.xcodeproj",
+        "identifier" : "E950AC072E48679A0046CF5C",
+        "name" : "ReadyKitTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:ReadyKit.xcodeproj",
+        "identifier" : "E950AC112E48679A0046CF5C",
+        "name" : "ReadyKitUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
