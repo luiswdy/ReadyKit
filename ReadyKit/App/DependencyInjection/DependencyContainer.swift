@@ -13,6 +13,52 @@ final class DependencyContainer: ObservableObject {
     // MARK: - Core Dependencies
     private let modelContext: ModelContext
 
+    #if DEBUG
+    // MARK: - Test Infrastructure (DEBUG only)
+    /// Test-only database management utilities
+    /// This section is completely excluded from production builds
+    private static func resetDatabaseForTesting() {
+        guard CommandLine.arguments.contains("--reset") else { return }
+
+        let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
+        let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
+
+        do {
+            if FileManager.default.fileExists(atPath: storeUrl.path) {
+                try FileManager.default.removeItem(at: storeUrl)
+                print("[DependencyContainer] DEBUG: Nuked SwiftData store at \(storeUrl)")
+            }
+        } catch {
+            print("[DependencyContainer] DEBUG: Failed to nuke SwiftData store: \(error)")
+        }
+    }
+
+    /// Creates a ModelContainer with optional test database reset
+    /// Only available in DEBUG builds
+    static func createModelContainerForTesting() -> ModelContainer {
+        // Reset database if requested via command line argument
+        resetDatabaseForTesting()
+
+        // Create the model container normally
+        let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
+        let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
+
+        let schema = Schema([
+            EmergencyKitModel.self,
+            ItemModel.self,
+        ])
+
+        let modelConfiguration = ModelConfiguration(schema: schema, url: storeUrl, cloudKitDatabase: .none)
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            print("[DependencyContainer] DEBUG: Could not create ModelContainer: \(error)")
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }
+    #endif
+
     // MARK: - Repositories
     lazy var emergencyKitRepository: EmergencyKitRepository = SwiftDataEmergencyKitRepository(context: modelContext)
     lazy var itemRepository: ItemRepository = SwiftDataItemRepository(context: modelContext)

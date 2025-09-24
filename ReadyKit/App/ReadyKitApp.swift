@@ -17,26 +17,40 @@ struct ReadyKitApp: App {
     private let logger: Logger = DefaultLogger.shared
 
     init() {
+        // Use DependencyContainer's safe model container creation
+        #if DEBUG
+        // In DEBUG builds, use the test-aware container creation
+        sharedModelContainer = DependencyContainer.createModelContainerForTesting()
+        #else
+        // In RELEASE builds, use standard production container creation
+        sharedModelContainer = Self.createProductionModelContainer()
+        #endif
+
+        dependencyContainer = DependencyContainer(modelContext: ModelContext(sharedModelContainer))
+        self.dependencyContainer.reminderBackgroundTaskScheduler.registerTask()
+    }
+
+    /// Creates a production ModelContainer without any test logic
+    /// This method is only used in RELEASE builds
+    private static func createProductionModelContainer() -> ModelContainer {
         let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
         let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
-        logger.logInfo("storeUrl: \(storeUrl)")
+
+        DefaultLogger.shared.logInfo("storeUrl: \(storeUrl)")
+
         let schema = Schema([
             EmergencyKitModel.self,
             ItemModel.self,
         ])
 
-        // Create a single ModelConfiguration with both URL and schema
         let modelConfiguration = ModelConfiguration(schema: schema, url: storeUrl, cloudKitDatabase: .none)
 
         do {
-            sharedModelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            dependencyContainer = DependencyContainer(modelContext: ModelContext(sharedModelContainer))
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            logger.logFatal("Could not create ModelContainer: \(error)")
+            DefaultLogger.shared.logFatal("Could not create ModelContainer: \(error)")
             fatalError("Could not create ModelContainer: \(error)")
         }
-
-        self.dependencyContainer.reminderBackgroundTaskScheduler.registerTask()
     }
 
     var body: some Scene {
