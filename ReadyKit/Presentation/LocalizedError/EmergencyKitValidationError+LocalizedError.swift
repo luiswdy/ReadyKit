@@ -5,7 +5,7 @@
 //  Created by Luis Wu on 8/18/25.
 //
 
-import SwiftUICore
+import SwiftUI
 
 extension EmergencyKitValidationError: LocalizedError {
     public var errorDescription: String? {

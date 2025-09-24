@@ -6,7 +6,7 @@
 //
 
 import UserNotifications
-import SwiftUICore
+import SwiftUI
 
 enum DefaultReminderSchedulerError: Error {
     case failedToLoadPreferences(Error)
