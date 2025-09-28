@@ -111,6 +111,11 @@ Feature: Item Management
     When the user duplicates a specific item from the kit using swipe actions or contextual menu
     Then a new item with the same properties but a unique ID should be created and added to the kit
 
+  Scenario: Move an Item between Emergency Kits
+    Given an emergency kit contains one or more items and there is at least one other emergency kit
+    When the user chooses to move an item from its current kit to a different kit using the item edit UI or detail view actions
+    Then the item should be removed from the original kit and added to the target kit preserving its properties (name, quantity, expiration, notes, photo)
+
 Feature: Preferences and Notifications
 
   Scenario: Load User Preferences
