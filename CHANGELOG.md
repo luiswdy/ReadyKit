@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-09-28
+
+### Added
+- Move items between emergency kits from the item edit UI and item detail actions. Users can now select a target kit when editing an item and move it while preserving all item properties (name, quantity, expiration, notes, photo).
+- Duplicate items inside a kit using swipe actions or contextual menus. Duplicated items retain all properties but receive a unique identifier.
+
+### Changed
+- Improved item editing flows and swipe actions to support duplication and moving items.
+- UI: Added a kit picker in the item edit form and a "Copy" swipe action on item rows.
+- Increased testability: added defensive accessibility identifiers for item actions to stabilize UI tests.
+
+### Fixed
+- Fixed several UI test flakiness issues related to swipe actions, photo picker interactions, and item manipulation.
+- Resolved edge cases when moving items between kits where duplicate IDs could be generated.
+
+### Notes for Developers
+- The new move and duplicate features add use-cases and corresponding use-case classes. See `Domain/UseCases/DuplicateItemInEmergencyKit.swift` and related repository methods.
+- The database reset for UI tests (`--reset`) is available in DEBUG builds only and implemented via the DependencyContainer to avoid any risk in production builds.
+
 ## [1.1.0] - 2025-09-07
 
 ### Added
