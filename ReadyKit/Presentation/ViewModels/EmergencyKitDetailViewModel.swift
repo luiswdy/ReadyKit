@@ -133,37 +133,23 @@ final class EmergencyKitDetailViewModel {
             itemPhoto: photo
         )
 
-        let result = container.addItemToEmergencyKitUseCase.execute(request: request)
+        var result = container.addItemToEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
             refreshEmergencyKit()
-            isLoading = false
+            // Reschedule notifications to reflect the updated item list
+            result = container.rescheduleRemindersUseCase.execute()
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+            }
         case .failure(let error):
             errorMessage = "Failed to add item: \(error.localizedDescription)"
-            isLoading = false
         }
+        isLoading = false
         return result
-    }
-
-    // TODO: this method is not used currently, consider removing it
-    func updateItem(_ item: Item) -> Bool {
-        isLoading = true
-        let request = EditItemInEmergencyKitRequest(
-            emergencyKitId: emergencyKit.id,
-            updatedItem: item
-        )
-
-        let result = container.editItemInEmergencyKitUseCase.execute(request: request)
-        switch result {
-        case .success:
-            refreshEmergencyKit()
-            isLoading = false
-            return true
-        case .failure(let error):
-            errorMessage = "Failed to update item: \(error.localizedDescription)"
-            isLoading = false
-            return false
-        }
     }
 
     func deleteItem(_ item: Item) -> Result<Void, Error> {
@@ -175,15 +161,22 @@ final class EmergencyKitDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        let result = container.deleteItemInEmergencyKitUseCase.execute(request: request)
+        var result = container.deleteItemInEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
             refreshEmergencyKit() // Refresh to get updated emergency kit
-            isLoading = false
+            // Reschedule notifications to reflect the updated item list
+            result = container.rescheduleRemindersUseCase.execute()
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+            }
         case .failure(let error):
             errorMessage = "Failed to delete item: \(error.localizedDescription)"
-            isLoading = false
         }
+        isLoading = false
         return result
     }
 
@@ -286,8 +279,8 @@ final class EmergencyKitDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        let deleteResult = container.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
-        switch deleteResult {
+        var result = container.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
+        switch result {
         case .success:
             // Item deleted successfully, now add it to the target emergency kit
             let addRequest = AddItemToEmergencyKitRequest(
@@ -300,22 +293,26 @@ final class EmergencyKitDetailViewModel {
                 itemPhoto: item.photo
             )
 
-            let addResult = container.addItemToEmergencyKitUseCase.execute(request: addRequest)
-            switch addResult {
+            result = container.addItemToEmergencyKitUseCase.execute(request: addRequest)
+            switch result {
             case .success:
                 refreshEmergencyKit()
-                isLoading = false
-                return .success(())
+                // Reschedule notifications to reflect the updated item list
+                result = container.rescheduleRemindersUseCase.execute()
+                switch result {
+                case .success:
+                    break
+                case .failure(let error):
+                    errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                }
             case .failure(let error):
                 errorMessage = "Failed to move item: \(error.localizedDescription)"
-                isLoading = false
-                return .failure(error)
             }
         case .failure(let error):
             errorMessage = "Failed to move item: \(error.localizedDescription)"
-            isLoading = false
-            return .failure(error)
         }
+        isLoading = false
+        return result
     }
 
     // MARK: - Helper Methods

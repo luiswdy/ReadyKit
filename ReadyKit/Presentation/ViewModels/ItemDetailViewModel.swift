@@ -137,13 +137,21 @@ class ItemDetailViewModel {
                     updatedItem: updatedItem
                 )
 
-                let result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
+                var result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
                 switch result {
                 case .success:
                     item = updatedItem
+                    // Reschedule notifications to reflect the updated item list
+                    result = dependencyContainer.rescheduleRemindersUseCase.execute()
+                    switch result {
+                    case .success:
+                        break
+                    case .failure(let error):
+                        errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                    }
                     isEditing = false
                     isLoading = false
-                    return .success(())
+                    return result
                 case .failure(let error):
                     errorMessage = "Failed to save changes: \(error.localizedDescription)"
                     isLoading = false
@@ -164,8 +172,8 @@ class ItemDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        let deleteResult = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
-        switch deleteResult {
+        var result = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: deleteRequest)
+        switch result {
         case .success:
             // Item deleted successfully, now add it to the target emergency kit
             let addRequest = AddItemToEmergencyKitRequest(
@@ -178,10 +186,18 @@ class ItemDetailViewModel {
                 itemPhoto: item.photo
             )
 
-            let addResult = dependencyContainer.addItemToEmergencyKitUseCase.execute(request: addRequest)
-            switch addResult {
+            result = dependencyContainer.addItemToEmergencyKitUseCase.execute(request: addRequest)
+            switch result {
             case .success:
-                return .success(())
+                // Reschedule notifications to reflect the updated item list
+                result = dependencyContainer.rescheduleRemindersUseCase.execute()
+                switch result {
+                case .success:
+                    break
+                case .failure(let error):
+                    errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                }
+                return result
             case .failure(let error):
                 errorMessage = "Failed to move item: \(error.localizedDescription)"
                 return .failure(error)
@@ -201,9 +217,17 @@ class ItemDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        let result = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: request)
+        var result = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
+            // Reschedule notifications to reflect the updated item list
+            result = dependencyContainer.rescheduleRemindersUseCase.execute()
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+            }
             isLoading = false
         case .failure(let error):
             errorMessage = "Failed to delete item: \(error.localizedDescription)"
