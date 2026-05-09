@@ -52,22 +52,15 @@ final class ReminderBackgroundTaskScheduler {
         logger.logInfo("Handling background reminder task...")
         scheduleNextRefresh()
 
-        let result = reminderScheduler.removeNonSnoozePendingReminders()
+        await reminderScheduler.removeNonSnoozePendingReminders()
+        logger.logInfo("Removed non-snoozed pending reminders")
+
+        let result = reminderScheduler.scheduleReminders()
         switch result {
         case .success:
-            logger.logInfo("Successfully removed non-snooze pending reminders")
+            logger.logInfo("Successfully scheduled reminders")
         case .failure(let error):
-            logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
-        }
-        // Run on main thread
-        await MainActor.run {
-            let result = reminderScheduler.scheduleReminders()
-            switch result {
-            case .success:
-                logger.logInfo("Successfully scheduled reminders")
-            case .failure(let error):
-                logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
-            }
+            logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
         }
 
         // Set the task expiration handler

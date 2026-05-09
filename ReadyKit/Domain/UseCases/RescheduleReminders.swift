@@ -14,21 +14,8 @@ final class RescheduleRemindersUseCase {
         self.reminderScheduler = reminderScheduler
     }
     
-    func execute() -> RescheduleRemindersResult {
-        var result = reminderScheduler.removeNonSnoozePendingReminders()
-        switch result {
-        case .success:
-            break
-        case .failure(let error):
-            return .failure(error)
-        }
-        
-        result = reminderScheduler.scheduleReminders()
-        switch result {
-        case .success:
-            return .success(())
-        case .failure(let error):
-            return .failure(error)
-        }
+    func execute() async -> RescheduleRemindersResult {
+        await reminderScheduler.removeNonSnoozePendingReminders()
+        return reminderScheduler.scheduleReminders()
     }
 }

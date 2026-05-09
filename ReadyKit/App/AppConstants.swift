@@ -85,12 +85,14 @@ enum AppConstants {
         enum ActionIdentifier {
             static let snoozeAnHour = "SNOOZE_AN_HOUR_ACTION"
             static let snoozeADay = "SNOOZE_A_DAY_ACTION"
+            static let keepRemindingMe = "KEEP_REMINDING_ME"
+            static let openApp = "OPEN_APP"
         }
 
         enum CategoryIdentifier {
             static let regularCheck = "REGULAR_CHECK_CATEGORY"
-            static let expiringItemsReminder = "EXPIRING_ITEMS_REMINDER_CATEGORY"
-            static let earliestExpiringItemAlert = "EARLIEST_EXPIRING_ITEM_ALERT_CATEGORY"
+            static let expiryBatch = "EXPIRY_BATCH_CATEGORY"
+            static let persistentExpiryReminder = "EXPIRY_PERSISTENT_CATEGORY"
         }
 
         enum RegularCheck {
@@ -103,9 +105,17 @@ enum AppConstants {
 
         enum RequestIdentifier {
             static let regularCheckPrefix = "regular-check-"
-            static let expiringItemsReminder = "expiringItemsReminder"
             static let snoozedRegularCheck = "snoozed-regular-check"
-            static let earliestExpiringItemAlert = "earliest-expiring-item-alert"
+            static let expiryBatchPrefix = "expiry-batch-"
+            static let persistentExpiryReminder = "persistent-expiry-reminder"
+        }
+
+        enum ExpiryBatch {
+            static let size = 3
+        }
+
+        static func expiryBatchIdentifier(for index: Int) -> String {
+            "\(RequestIdentifier.expiryBatchPrefix)\(index)"
         }
     }
 }

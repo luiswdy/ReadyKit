@@ -72,7 +72,11 @@ final class DependencyContainer: ObservableObject {
         userPreferencesRepository: userPreferencesRepository
     )
 
-    lazy var notificationDelegate: NotificationDelegate = NotificationDelegate(reminderScheduler: reminderScheduler)
+    lazy var notificationDelegate: NotificationDelegate = NotificationDelegate(
+        reminderScheduler: reminderScheduler,
+        loadUserPreferencesUseCase: LoadUserPreferencesUseCase(userPreferencesRepository: userPreferencesRepository),
+        notificationCenter: userNotificationCenter
+    )
 
     lazy var backgroundModeService: BackgroundModeService = IOSBackgroundModeService()
 

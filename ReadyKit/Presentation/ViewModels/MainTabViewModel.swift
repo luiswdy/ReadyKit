@@ -67,12 +67,11 @@ class MainTabViewModel {
     }
 
     private func rescheduleReminders() {
-        let result = dependencyContainer.rescheduleRemindersUseCase.execute()
-        switch result {
-        case .success:
-            break // Success, no action needed
-        case .failure(let error):
-            errorMessage = "Failed to schedule reminders: \(error.localizedDescription)"
+        Task {
+            let result = await dependencyContainer.rescheduleRemindersUseCase.execute()
+            if case .failure(let error) = result {
+                errorMessage = "Failed to schedule reminders: \(error.localizedDescription)"
+            }
         }
     }
 
