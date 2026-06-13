@@ -308,7 +308,7 @@ struct FetchAllEmergencyKitsUseCaseTests {
         switch result {
         case .success(let emergencyKits):
             #expect(emergencyKits.count == 1)
-            let fetchedKit = emergencyKits.first!
+            let fetchedKit = try #require(emergencyKits.first)
             
             // Verify all properties are preserved
             #expect(fetchedKit.id == originalKit.id)
