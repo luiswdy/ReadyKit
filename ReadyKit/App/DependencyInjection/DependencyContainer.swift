@@ -68,7 +68,7 @@ final class DependencyContainer: ObservableObject {
     // MARK: - Services
     lazy var reminderScheduler: ReminderScheduler = DefaultReminderScheduler(
         repository: itemRepository,
-        notificationCenter: UNUserNotificationCenter.current(),
+        notificationCenter: userNotificationCenter,
         userPreferencesRepository: userPreferencesRepository
     )
 

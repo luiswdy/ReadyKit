@@ -48,7 +48,13 @@ final class ReminderBackgroundTaskScheduler {
         // background task :
         // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"io.wdy.ReadyKitApp.refresh"]
 
-        // Schedule the next refresh
+        // Register expiration handler before any async work so iOS can always
+        // call it if the task is killed mid-execution.
+        task.expirationHandler = { [weak self] in
+            self?.logger.logWarning("Background task expired before completion.")
+            task.setTaskCompleted(success: false)
+        }
+
         logger.logInfo("Handling background reminder task...")
         scheduleNextRefresh()
 
@@ -63,13 +69,6 @@ final class ReminderBackgroundTaskScheduler {
             logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
         }
 
-        // Set the task expiration handler
-        task.expirationHandler = { [weak self] in
-            self?.logger.logWarning("Background task expired before completion.")
-            task.setTaskCompleted(success: false)
-        }
-
-        // Mark the task as completed
         logger.logInfo("Background reminder task completed successfully.")
         task.setTaskCompleted(success: true)
     }

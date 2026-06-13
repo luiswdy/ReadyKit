@@ -81,6 +81,47 @@ final class SwiftDataItemRepository: ItemRepository {
         }
     }
 
+    func countExpiring(within days: Int) throws -> Int {
+        assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
+        let now = Date()
+        guard let expiringDate = Calendar.current.date(byAdding: .day, value: days, to: now) else {
+            throw SwiftDataItemRepositoryError.fetchExpiringError
+        }
+        let descriptor = FetchDescriptor<ItemModel>(
+            predicate: #Predicate<ItemModel> { item in
+                if let expirationDate = item.expirationDate {
+                    return expirationDate >= now && expirationDate <= expiringDate
+                } else {
+                    return false
+                }
+            }
+        )
+        do {
+            return try context.fetchCount(descriptor)
+        } catch {
+            throw SwiftDataItemRepositoryError.fetchError(error)
+        }
+    }
+
+    func countExpired() throws -> Int {
+        assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
+        let now = Date()
+        let descriptor = FetchDescriptor<ItemModel>(
+            predicate: #Predicate<ItemModel> {
+                if let expirationDate = $0.expirationDate {
+                    return expirationDate < now
+                } else {
+                    return false
+                }
+            }
+        )
+        do {
+            return try context.fetchCount(descriptor)
+        } catch {
+            throw SwiftDataItemRepositoryError.fetchError(error)
+        }
+    }
+
     func save(item: Item, to emergencyKit: EmergencyKit) throws {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
         let emergencyKitModel = EmergencyKitMapper.toModel(emergencyKit)

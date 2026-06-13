@@ -9,6 +9,8 @@ protocol ItemRepository {
     func fetchAllItems() throws -> [Item]
     func fetchExpiring(within days: Int) throws -> [Item]
     func fetchExpired() throws -> [Item]
+    func countExpiring(within days: Int) throws -> Int
+    func countExpired() throws -> Int
     func save(item: Item, to emergencyKit: EmergencyKit) throws
     func delete(item: Item) throws
     func fetchItemWithEarliestExpiration() throws -> Item?

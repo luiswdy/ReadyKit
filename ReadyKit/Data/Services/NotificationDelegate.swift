@@ -50,13 +50,17 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
             && actionIdentifier == UNNotificationDismissActionIdentifier {
             logger.logInfo("User dismissed a regular-check notification; rescheduling.")
+            // completionHandler is called inside the Task so iOS keeps the background
+            // execution assertion alive until rescheduling finishes.
             Task { @MainActor in
                 await reminderScheduler.removeNonSnoozePendingReminders()
                 let result = reminderScheduler.scheduleReminders()
                 if case .failure(let error) = result {
                     logger.logError("Failed to reschedule reminders after regular-check dismissal: \(error.localizedDescription)")
                 }
+                completionHandler()
             }
+            return
         }
 
         // Regular check snooze actions

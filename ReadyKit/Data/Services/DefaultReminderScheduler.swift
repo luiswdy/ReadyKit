@@ -49,8 +49,8 @@ final class DefaultReminderScheduler: ReminderScheduler {
             return .failure(DefaultReminderSchedulerError.failedToLoadPreferences(error))
         case .success(let userPreferences):
             do {
-                let expiringCount = try repository.fetchExpiring(within: userPreferences.expiryReminderLeadDays).count
-                let expiredCount = try repository.fetchExpired().count
+                let expiringCount = try repository.countExpiring(within: userPreferences.expiryReminderLeadDays)
+                let expiredCount = try repository.countExpired()
 
                 if expiringCount > 0 || expiredCount > 0 {
                     schedulePersistentExpiryReminder(userPreferences: userPreferences)
