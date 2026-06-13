@@ -135,27 +135,23 @@ final class MockReminderScheduler: ReminderScheduler {
     var shouldSucceed = true
     var errorToReturn: Error = DefaultReminderSchedulerError.failedToScheduleReminders(NSError(domain: "TestError", code: 1, userInfo: nil))
     
-    func removeNonSnoozePendingReminders() -> ReminderSchedulerResult {
+    func removeNonSnoozePendingReminders() async {
         removePendingRemindersCalled = true
         callCount += 1
-        
-        if shouldSucceed {
-            return .success(())
-        } else {
-            return .failure(errorToReturn)
-        }
     }
-    
-    func scheduleReminders() -> ReminderSchedulerResult {
+
+    @MainActor func scheduleReminders() -> ReminderSchedulerResult {
         scheduleRemindersCalled = true
         callCount += 1
-        
+
         if shouldSucceed {
             return .success(())
         } else {
             return .failure(errorToReturn)
         }
     }
+
+    func schedulePersistentExpiryReminder(userPreferences: UserPreferences) {}
     
     // Test helper methods
     func reset() {

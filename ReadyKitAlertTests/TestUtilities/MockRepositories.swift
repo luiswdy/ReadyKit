@@ -203,6 +203,14 @@ final class MockItemRepository: ItemRepository {
         }
     }
 
+    func countExpiring(within days: Int) throws -> Int {
+        try fetchExpiring(within: days).count
+    }
+
+    func countExpired() throws -> Int {
+        try fetchExpired().count
+    }
+
     func save(item: Item, to emergencyKit: EmergencyKit) throws {
         if shouldThrowError {
             throw errorToThrow
