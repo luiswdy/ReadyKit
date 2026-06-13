@@ -42,7 +42,7 @@ final class DefaultReminderScheduler: ReminderScheduler {
         notificationCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
-    func scheduleReminders() -> ReminderSchedulerResult {
+    @MainActor func scheduleReminders() -> ReminderSchedulerResult {
         let result = loadUserPreferencesUseCase.execute()
         switch result {
         case .failure(let error):

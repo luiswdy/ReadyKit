@@ -14,7 +14,7 @@ final class RescheduleRemindersUseCase {
         self.reminderScheduler = reminderScheduler
     }
     
-    func execute() async -> RescheduleRemindersResult {
+    @MainActor func execute() async -> RescheduleRemindersResult {
         await reminderScheduler.removeNonSnoozePendingReminders()
         return reminderScheduler.scheduleReminders()
     }

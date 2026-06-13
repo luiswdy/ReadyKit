@@ -50,7 +50,7 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
             && actionIdentifier == UNNotificationDismissActionIdentifier {
             logger.logInfo("User dismissed a regular-check notification; rescheduling.")
-            Task {
+            Task { @MainActor in
                 await reminderScheduler.removeNonSnoozePendingReminders()
                 let result = reminderScheduler.scheduleReminders()
                 if case .failure(let error) = result {
