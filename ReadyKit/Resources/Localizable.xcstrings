@@ -2837,31 +2837,31 @@
         }
       }
     },
-    "Expiring/Expired items detected. Please check your emergency kits." : {
+    "⚠️Expiring/Expired items detected. Please check your emergency kits." : {
       "comment" : "Expiry notification body",
       "localizations" : {
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se detectaron artículos vencidos o por vencer. Por favor, revisa tus kits de emergencia."
+            "value" : "⚠️Se detectaron artículos vencidos o por vencer. Por favor, revisa tus kits de emergencia."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "期限切れ、または期限が近いアイテムが見つかりました。防災セットを確認してください。"
+            "value" : "⚠️期限切れ、または期限が近いアイテムが見つかりました。防災セットを確認してください。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Itens vencidos ou próximos do vencimento detectados. Por favor, verifique seus kits de emergência."
+            "value" : "⚠️Itens vencidos ou próximos do vencimento detectados. Por favor, verifique seus kits de emergência."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "偵測到即將過期/已過期的物資。請檢查您的緊急避難包。"
+            "value" : "⚠️偵測到即將過期/已過期的物資。請檢查您的緊急避難包。"
           }
         }
       }

@@ -31,7 +31,7 @@ struct ItemListItemView: View {
                         showingPhotoViewer = true
                     }
             } else {
-                RoundedRectangle(cornerRadius:AppConstants.UI.Thumbnail.height)
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
                     .fill(Color.gray.opacity(AppConstants.UI.opacity))
                     .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
                     .overlay {

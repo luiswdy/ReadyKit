@@ -91,7 +91,7 @@ final class DefaultLogger: Logger {
                 try fileHandle?.synchronize()
                 try fileHandle?.close()
             } catch {
-                logError("Failed to close log file: \(error.localizedDescription)")
+                print("[DefaultLogger] Failed to close log file: \(error.localizedDescription)")
             }
             fileHandle = nil
         }
@@ -128,7 +128,7 @@ final class DefaultLogger: Logger {
                 assertionFailure("Fatal log entry written. Log file closed.")
             }
         } catch {
-            logError("Failed to write log entry: \(error.localizedDescription)")
+            print("[DefaultLogger] Failed to write log entry: \(error.localizedDescription)")
         }
     }
 
@@ -145,7 +145,7 @@ final class DefaultLogger: Logger {
             try fileHandle?.synchronize()
             try fileHandle?.close()
         } catch {
-            logError("Failed to close log file before rotation: \(error.localizedDescription)")
+            print("[DefaultLogger] Failed to close log file before rotation: \(error.localizedDescription)")
         }
         fileHandle = nil
         for i in stride(from: maxFileCount - 1, through: 0, by: -1) {

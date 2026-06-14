@@ -174,6 +174,7 @@ final class DefaultReminderScheduler: ReminderScheduler {
             var components = Calendar.current.dateComponents([.year, .month, .day], from: batchDate)
             components.hour = userPreferences.dailyNotificationTime.hour
             components.minute = userPreferences.dailyNotificationTime.minute
+            components.timeZone = userPreferences.dailyNotificationTime.timeZone ?? .current
 
             let content = buildExpiryNotificationContent(
                 categoryIdentifier: AppConstants.Notification.CategoryIdentifier.expiryBatch
@@ -238,7 +239,7 @@ final class DefaultReminderScheduler: ReminderScheduler {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Expiring items detected",
                                comment: "Expiry notification title")
-        content.body = String(localized: "Expiring/Expired items detected. Please check your emergency kits.",
+        content.body = String(localized: "⚠️Expiring/Expired items detected. Please check your emergency kits.",
                               comment: "Expiry notification body")
         content.sound = .default
         content.categoryIdentifier = categoryIdentifier

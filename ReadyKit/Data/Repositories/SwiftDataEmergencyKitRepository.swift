@@ -19,7 +19,7 @@ final class SwiftDataEmergencyKitRepository: EmergencyKitRepository {
     private let context: ModelContext
 
     init(context: ModelContext) {
-        assert(Thread.isMainThread, "SwiftDataEmergencyKitshould be used on the main thread")
+        assert(Thread.isMainThread, "SwiftDataEmergencyKitRepository should be used on the main thread")
         self.context = context
     }
 
@@ -94,13 +94,17 @@ final class SwiftDataEmergencyKitRepository: EmergencyKitRepository {
     func fetchEmergencyKit(by id: UUID) throws -> EmergencyKit {
         assert(Thread.isMainThread, "SwiftDataEmergencyKitRepository should be used on the main thread")
         let descriptor = FetchDescriptor<EmergencyKitModel>(predicate: #Predicate { $0.id == id })
+        let models: [EmergencyKitModel]
         do {
-            let emergencyKitModel = try context.fetch(descriptor).first
-            if let emergencyKitModel {
-                return try EmergencyKitMapper.toDomain(emergencyKitModel)
-            } else {
-                throw SwiftDataEmergencyKitRepositoryError.emergencyKitNotFound(id)
-            }
+            models = try context.fetch(descriptor)
+        } catch {
+            throw SwiftDataEmergencyKitRepositoryError.fetchError(error)
+        }
+        guard let emergencyKitModel = models.first else {
+            throw SwiftDataEmergencyKitRepositoryError.emergencyKitNotFound(id)
+        }
+        do {
+            return try EmergencyKitMapper.toDomain(emergencyKitModel)
         } catch {
             throw SwiftDataEmergencyKitRepositoryError.fetchError(error)
         }

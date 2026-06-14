@@ -14,8 +14,10 @@ final class UserDefaultsUserPreferencesRepository: UserPreferencesRepository {
     func load() -> UserPreferences {
         let defaultPreferences = UserPreferences(
             dailyNotificationTime: DateComponents(
+                timeZone: .current,
                 hour: AppConstants.UserPreferences.defaultNotificationHour,
-                minute: AppConstants.UserPreferences.defaultNotificationMinute
+                minute: AppConstants.UserPreferences.defaultNotificationMinute,
+                second: AppConstants.UserPreferences.defaultNotificationSecond
             ),
             expiryReminderLeadDays: AppConstants.UserPreferences.defaultExpiryReminderLeadDays,
             regularCheck: AppConstants.UserPreferences.defaultRegularCheckFrequency
@@ -32,9 +34,8 @@ final class UserDefaultsUserPreferencesRepository: UserPreferencesRepository {
         }
     }
 
-    func save(_ preferences: UserPreferences) {
-        if let data = try? JSONEncoder().encode(preferences) {
-            userDefaults.set(data, forKey: preferencesKey)
-        }
+    func save(_ preferences: UserPreferences) throws {
+        let data = try JSONEncoder().encode(preferences)
+        userDefaults.set(data, forKey: preferencesKey)
     }
 }

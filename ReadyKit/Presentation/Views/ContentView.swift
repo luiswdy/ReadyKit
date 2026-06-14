@@ -35,12 +35,14 @@ struct ContentView: View {
     
     
     private func updateAppBadgeForExpiringAndExpiredItems() {
-        let result = dependencyContainer.updateAppBadgeForExpiringAndExpiredItemsUseCase.execute()
-        switch result {
-        case .success:
-            logger.logInfo("App badge updated successfully.")
-        case .failure(let error):
-            logger.logError("Failed to update app badge: \(error.localizedDescription)")
+        Task { @MainActor in
+            let result = await dependencyContainer.updateAppBadgeForExpiringAndExpiredItemsUseCase.execute()
+            switch result {
+            case .success:
+                logger.logInfo("App badge updated successfully.")
+            case .failure(let error):
+                logger.logError("Failed to update app badge: \(error.localizedDescription)")
+            }
         }
     }
 }

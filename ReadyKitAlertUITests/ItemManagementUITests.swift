@@ -376,7 +376,6 @@ final class ItemManagementUITests: XCTestCase {
 
         for button in saveButtons {
             if button.exists {
-                print("HERE!")
                 button.tap()
                 return
             }

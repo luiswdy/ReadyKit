@@ -263,8 +263,6 @@ struct FetchAllEmergencyKitsUseCaseTests {
         switch result {
         case .success(let emergencyKits):
             #expect(emergencyKits.count == 1)
-            print(emergencyKits.first?.name ?? "nil")
-            print(emergencyKits.first?.location ?? "nil")
             #expect(emergencyKits.first?.name == longName)
             #expect(emergencyKits.first?.location == longLocation)
         case .failure(let error):

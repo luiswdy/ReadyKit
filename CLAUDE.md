@@ -8,13 +8,13 @@ Open `ReadyKit.xcodeproj` in Xcode. There is no CLI build script — use Xcode o
 
 ```sh
 # Build
-xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16' build
+xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16e' build
 
 # Run all tests
-xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -testPlan ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -testPlan ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16e' test
 
 # Run a single test class
-xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ReadyKitTests/AddItemToEmergencyKitUseCaseTests
+xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -destination 'platform=iOS Simulator,name=iPhone 16e' test -only-testing:ReadyKitTests/AddItemToEmergencyKitUseCaseTests
 ```
 
 Tests use Swift Testing (`@Test`, `#expect`) — not XCTest. Test targets:

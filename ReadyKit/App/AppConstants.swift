@@ -30,7 +30,7 @@ enum AppConstants {
         static let hourRange = 0...23
         static let minuteRange = 0...59
         static let expiryReminderLeadDaysRange = 1...365
-        static let minimumQuantityValue = 0
+        static let minimumQuantityValue = 1
         static let maxYearsInPast = 10
     }
 

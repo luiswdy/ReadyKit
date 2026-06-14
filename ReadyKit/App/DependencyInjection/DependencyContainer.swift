@@ -172,11 +172,8 @@ final class DependencyContainer: ObservableObject {
     private let userNotificationCenter: UNUserNotificationCenter
 
     init(modelContext: ModelContext, userNotificationCenter: UNUserNotificationCenter = .current()) {
-        // Initialize ModelContext for SwiftData
         self.userNotificationCenter = userNotificationCenter
         self.modelContext = modelContext
-        self.emergencyKitRepository = SwiftDataEmergencyKitRepository(context: modelContext)
-        self.itemRepository = SwiftDataItemRepository(context: modelContext)
         self.userNotificationCenter.delegate = notificationDelegate
     }
 }

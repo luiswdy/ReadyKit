@@ -6,6 +6,6 @@
 //
 
 protocol UserPreferencesRepository {
-    func save(_ preferences: UserPreferences)
+    func save(_ preferences: UserPreferences) throws
     func load() -> UserPreferences
 }

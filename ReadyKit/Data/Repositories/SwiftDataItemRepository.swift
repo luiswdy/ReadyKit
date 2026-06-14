@@ -124,12 +124,9 @@ final class SwiftDataItemRepository: ItemRepository {
 
     func save(item: Item, to emergencyKit: EmergencyKit) throws {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
-        let emergencyKitModel = EmergencyKitMapper.toModel(emergencyKit)
-        // Check if the item already exists
         let itemId = item.id
         let descriptor = FetchDescriptor<ItemModel>(predicate: #Predicate { $0.id == itemId })
         if let existingItem = try context.fetch(descriptor).first {
-            // If it exists, update it
             existingItem.name = item.name
             existingItem.expirationDate = item.expirationDate
             existingItem.notes = item.notes
@@ -137,6 +134,14 @@ final class SwiftDataItemRepository: ItemRepository {
             existingItem.quantityUnitName = item.quantityUnitName
             existingItem.photo = item.photo
         } else {
+            let kitId = emergencyKit.id
+            let kitDescriptor = FetchDescriptor<EmergencyKitModel>(predicate: #Predicate { $0.id == kitId })
+            guard let emergencyKitModel = try context.fetch(kitDescriptor).first else {
+                throw SwiftDataItemRepositoryError.saveError(
+                    NSError(domain: AppConstants.ErrorAppNamespace.appName, code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Emergency kit not found: \(kitId)"])
+                )
+            }
             let itemModel = ItemMapper.toModel(item, emergencyKit: emergencyKitModel)
             context.insert(itemModel)
         }
@@ -175,13 +180,20 @@ final class SwiftDataItemRepository: ItemRepository {
                 return nil
             }
         } catch {
-            return nil
+            throw SwiftDataItemRepositoryError.fetchError(error)
         }
     }
 
     func duplicate(item: Item, to emergencyKit: EmergencyKit) throws {
         assert(Thread.isMainThread, "SwiftDataItemRepository should be used on the main thread")
-        let emergencyKitModel = EmergencyKitMapper.toModel(emergencyKit)
+        let kitId = emergencyKit.id
+        let kitDescriptor = FetchDescriptor<EmergencyKitModel>(predicate: #Predicate { $0.id == kitId })
+        guard let emergencyKitModel = try context.fetch(kitDescriptor).first else {
+            throw SwiftDataItemRepositoryError.saveError(
+                NSError(domain: AppConstants.ErrorAppNamespace.appName, code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Emergency kit not found: \(kitId)"])
+            )
+        }
         let duplicatedItem = try Item(
             name: item.name,
             expirationDate: item.expirationDate,

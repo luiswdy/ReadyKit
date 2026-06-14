@@ -265,7 +265,10 @@ final class MockUserPreferencesRepository: UserPreferencesRepository {
         return storedPreferences ?? UserPreferences()
     }
 
-    func save(_ preferences: UserPreferences) {
+    func save(_ preferences: UserPreferences) throws {
+        if shouldThrowError {
+            throw errorToThrow
+        }
         storedPreferences = preferences
     }
 

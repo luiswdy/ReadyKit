@@ -19,7 +19,11 @@ final class SaveUserPreferencesUseCase {
     }
     
     func execute(request: SaveUserPreferencesRequest) -> SaveUserPreferencesResult {
-        userPreferencesRepository.save(request.preferences)
-        return .success(())
+        do {
+            try userPreferencesRepository.save(request.preferences)
+            return .success(())
+        } catch {
+            return .failure(error)
+        }
     }
 }

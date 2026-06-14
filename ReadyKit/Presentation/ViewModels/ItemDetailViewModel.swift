@@ -245,7 +245,7 @@ class ItemDetailViewModel {
             return .failure(ItemValidationError.invalidQuantityValueInput(editedQuantityValue))
         }
 
-        guard let quantity = Int(editedQuantityValue), quantity > AppConstants.Validation.minimumQuantityValue else {
+        guard let quantity = Int(editedQuantityValue), quantity >= AppConstants.Validation.minimumQuantityValue else {
             errorMessage = "Quantity must be a positive number"
             return .failure(ItemValidationError.invalidQuantityValueInput(editedQuantityValue))
         }

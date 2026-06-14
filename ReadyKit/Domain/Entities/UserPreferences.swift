@@ -39,6 +39,7 @@ extension UserPreferences: Codable {
     enum CodingKeys: String, CodingKey {
         case dailyNotificationTimeHour
         case dailyNotificationTimeMinute
+        case dailyNotificationTimeSecond
         case expiryReminderLeadDays
         case regularCheck
     }
@@ -48,7 +49,9 @@ extension UserPreferences: Codable {
 
         let hour = try container.decode(Int.self, forKey: .dailyNotificationTimeHour)
         let minute = try container.decode(Int.self, forKey: .dailyNotificationTimeMinute)
-        self.dailyNotificationTime = DateComponents(hour: hour, minute: minute)
+        let second = try container.decodeIfPresent(Int.self, forKey: .dailyNotificationTimeSecond)
+            ?? AppConstants.UserPreferences.defaultNotificationSecond
+        self.dailyNotificationTime = DateComponents(timeZone: .current, hour: hour, minute: minute, second: second)
 
         self.expiryReminderLeadDays = try container.decode(Int.self, forKey: .expiryReminderLeadDays)
         self.regularCheck = try container.decode(RegularCheckFrequency.self, forKey: .regularCheck)
@@ -59,6 +62,7 @@ extension UserPreferences: Codable {
 
         try container.encode(dailyNotificationTime.hour ?? AppConstants.UserPreferences.defaultNotificationHour, forKey: .dailyNotificationTimeHour)
         try container.encode(dailyNotificationTime.minute ?? AppConstants.UserPreferences.defaultNotificationMinute, forKey: .dailyNotificationTimeMinute)
+        try container.encode(dailyNotificationTime.second ?? AppConstants.UserPreferences.defaultNotificationSecond, forKey: .dailyNotificationTimeSecond)
         try container.encode(expiryReminderLeadDays, forKey: .expiryReminderLeadDays)
         try container.encode(regularCheck, forKey: .regularCheck)
     }
