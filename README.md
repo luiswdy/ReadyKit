@@ -201,6 +201,7 @@ ReadyKit/
   Infrastructure/     # Background tasks, services
   Presentation/       # Views, view models, utils
   Resources/          # Assets, localization, privacy
+  Shared/             # Shared between app and UI-test targets (accessibility identifiers, launch args)
   ReadyKit.xcodeproj/ # Xcode project files
   ...
 ```
@@ -224,10 +225,10 @@ ReadyKit/
 ReadyKit supports multiple languages. To add or update translations, edit the files in `Resources/Localizable.xcstrings`.
 
 ## Testing
-- **Unit Tests**: Located in `ReadyKitAlertTests/`
-- **UI Tests**: Located in `ReadyKitAlertUITests/`
+- **Unit Tests**: Located in `ReadyKitAlertTests/` — use Swift Testing (`@Test`, `#expect`), injected mocks, no shared state.
+- **UI Tests**: Located in `ReadyKitAlertUITests/` — use XCTest, driven via `XCUIApplication.launchForUITesting()` which gives each run a fresh in-memory store and cleared `UserDefaults`. Stable accessibility identifiers live in `Shared/AccessibilityIdentifiers.swift`.
 
-Run all tests in Xcode using **Product > Test** (⌘U).
+Run all tests in Xcode using **Product > Test** (⌘U). Disable parallel execution in the test plan if simulator clone instability is observed.
 
 ## Contributing
 Contributions are welcome! Please open issues or submit pull requests for improvements or bug fixes.

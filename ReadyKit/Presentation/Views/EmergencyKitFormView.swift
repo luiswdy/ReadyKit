@@ -38,9 +38,11 @@ struct EmergencyKitFormView: View {
                 Section("Emergency Kit Details") {
                     TextField("Emergency Kit Name", text: $name)
                         .textInputAutocapitalization(.words)
+                        .accessibilityIdentifier(A11y.KitForm.nameField)
 
                     TextField("Location", text: $location)
                         .textInputAutocapitalization(.words)
+                        .accessibilityIdentifier(A11y.KitForm.locationField)
                 }
 
                 Section("Photo") {
@@ -77,6 +79,7 @@ struct EmergencyKitFormView: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier(A11y.KitForm.photoButton)
                 }
             }
             .navigationTitle(emergencyKit == nil ? "Emergency Kit" : "Edit \(emergencyKit!.name)")
@@ -109,6 +112,7 @@ struct EmergencyKitFormView: View {
                         }
                     }
                     .disabled(name.isEmpty || location.isEmpty)
+                    .accessibilityIdentifier(A11y.KitForm.saveButton)
                 }
             }
             .alert("Error", isPresented: .constant(errorMessage != nil)) {

@@ -24,6 +24,7 @@ enum AppConstants {
 
     enum UserDefaultUserPreferencesKey {
         static let userPreferencesKey = "userPreferences"
+        static let uiTestSuiteName = "io.wdy.ReadyKitApp.uitests"
     }
 
     enum Validation {

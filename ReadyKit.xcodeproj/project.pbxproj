@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A11D0000000000000000B111 /* AccessibilityIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D0000000000000000F11E /* AccessibilityIdentifiers.swift */; };
+		A11D0000000000000000B222 /* AccessibilityIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11D0000000000000000F11E /* AccessibilityIdentifiers.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E950AC092E48679A0046CF5C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A11D0000000000000000F11E /* AccessibilityIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityIdentifiers.swift; sourceTree = "<group>"; };
 		E950ABF92E4867990046CF5C /* ReadyKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReadyKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E950AC082E48679A0046CF5C /* ReadyKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReadyKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E950AC122E48679A0046CF5C /* ReadyKitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReadyKitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +109,7 @@
 		E950ABF02E4867990046CF5C = {
 			isa = PBXGroup;
 			children = (
+				A11D0000000000000000600D /* Shared */,
 				E9C8897F2E76AF5C005BCF02 /* xctestplans */,
 				E950ABFB2E4867990046CF5C /* ReadyKit */,
 				E950AC0B2E48679A0046CF5C /* ReadyKitAlertTests */,
@@ -119,6 +126,14 @@
 				E950AC122E48679A0046CF5C /* ReadyKitUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A11D0000000000000000600D /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A11D0000000000000000F11E /* AccessibilityIdentifiers.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -270,6 +285,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11D0000000000000000B111 /* AccessibilityIdentifiers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11D0000000000000000B222 /* AccessibilityIdentifiers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

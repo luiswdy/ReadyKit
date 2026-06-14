@@ -15,8 +15,7 @@ final class SettingsAndNotificationsUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["--uitesting"]
-        app.launch()
+        app.launchForUITesting()
     }
 
     override func tearDownWithError() throws {
@@ -29,60 +28,66 @@ final class SettingsAndNotificationsUITests: XCTestCase {
     func testNavigateToReminderSettings() throws {
         app.tabBars.buttons["Settings"].tap()
 
-        // Verify we're on the settings tab
-        let settingsView = app.staticTexts.containing(.staticText, identifier: "Settings").firstMatch
-        XCTAssertTrue(settingsView.waitForExistence(timeout: 3) || app.switches.count > 0,
-                     "Settings view should be displayed")
+        XCTAssertTrue(
+            app.staticTexts["Daily Notification Time"].waitForExistence(timeout: 3),
+            "Reminder settings should be displayed"
+        )
     }
 
     @MainActor
     func testSavingReminderSettings() throws {
-        let emergencyKitsTabButton = app.tabBars.buttons["Emergency Kits"]
-        let settingsTabButton = app.tabBars.buttons["Settings"]
-        let hourPickerWheel = app.pickerWheels["12"].firstMatch
-        let minutePickerWheel = app.pickerWheels["00"].firstMatch
+        let emergencyKitsTab = app.tabBars.buttons["Emergency Kits"]
+        let settingsTab = app.tabBars.buttons["Settings"]
 
-        settingsTabButton.tap()
-        hourPickerWheel.adjust(toPickerWheelValue: "22")
-        minutePickerWheel.adjust(toPickerWheelValue: "31")
+        settingsTab.tap()
+
+        // The app launches with cleared preferences, so it starts from the defaults:
+        // 12:00, 30 lead days, quarterly.
+        let hourPicker = app.pickerWheels.element(boundBy: 0)
+        let minutePicker = app.pickerWheels.element(boundBy: 1)
+        XCTAssertTrue(hourPicker.waitForExistence(timeout: 3), "Hour picker should be visible")
+        XCTAssertEqual(hourPicker.value as? String, "12", "Hour should start at the default 12")
+        XCTAssertEqual(minutePicker.value as? String, "00", "Minute should start at the default 00")
+
+        hourPicker.adjust(toPickerWheelValue: "22")
+        minutePicker.adjust(toPickerWheelValue: "31")
 
         let incrementButton = app.buttons["Increment"].firstMatch
         let decrementButton = app.buttons["Decrement"].firstMatch
-        for _ in 0..<6 {
-            incrementButton.tap()
+        XCTAssertTrue(incrementButton.waitForExistence(timeout: 5), "Stepper increment should be available")
+        for _ in 0..<6 { incrementButton.tap() }
+        decrementButton.tap()   // 30 + 6 - 1 = 35
+
+        let halfYearly = app.buttons[A11y.Settings.frequencyHalfYearly]
+        XCTAssertTrue(halfYearly.waitForExistence(timeout: 3), "Half-Yearly segment should be available")
+        halfYearly.tap()
+        app.buttons[A11y.Settings.saveButton].tap()
+
+        // Round-trip away and back to confirm persistence.
+        emergencyKitsTab.tap()
+        settingsTab.tap()
+
+        XCTAssertEqual(hourPicker.value as? String, "22", "Hour should persist after saving")
+        XCTAssertEqual(minutePicker.value as? String, "31", "Minute should persist after saving")
+        XCTAssertTrue(app.buttons[A11y.Settings.frequencyHalfYearly].isSelected, "Half-Yearly should be selected")
+        XCTAssertTrue(app.staticTexts["35 days before expiration"].exists, "Lead days should be 35")
+
+        // Reset to defaults and confirm. The reset button sits at the bottom of the form.
+        let resetButton = app.buttons[A11y.Settings.resetButton]
+        var scrolls = 0
+        while !resetButton.isHittable && scrolls < 5 {
+            app.swipeUp()
+            scrolls += 1
         }
-        decrementButton.tap()   // 35 days
+        resetButton.tap()
+        app.buttons[A11y.Settings.saveButton].tap()
+        emergencyKitsTab.tap()
+        settingsTab.tap()
 
-        let halfYearlyButton = app.buttons["Half-Yearly"].firstMatch
-        halfYearlyButton.tap()
-
-        let saveButton = app.buttons["Save"].firstMatch
-        saveButton.tap()
-        emergencyKitsTabButton.tap()
-        settingsTabButton.tap()
-
-        XCTAssertNotNil(app.pickerWheels["22"].firstMatch, "Hour picker should retain value")
-        XCTAssertNotNil(app.pickerWheels["31"].firstMatch, "Minute picker should retain value")
-        XCTAssertTrue(halfYearlyButton.isSelected, "Half-Yearly button should be selected")
-        XCTAssertTrue(app.staticTexts["35 days before expiration"].exists, "Days before expiration should be 35")
-
-        let resetToDefaultButton = app.buttons["Reset to Defaults"].firstMatch
-        let quarterlyButton = app.buttons["Quarterly"].firstMatch
-        app/*@START_MENU_TOKEN@*/.staticTexts["Reminder Settings"].firstMatch.swipeUp()/*[[".otherElements.staticTexts[\"Reminder Settings\"].firstMatch",".swipeUp()",".swipeRight()",".staticTexts[\"Reminder Settings\"].firstMatch"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,1]]@END_MENU_TOKEN@*/
-        resetToDefaultButton.tap()
-        saveButton.tap()
-        emergencyKitsTabButton.tap()
-        settingsTabButton.tap()
-
-        XCTAssertTrue(hourPickerWheel.value as? String == "12", "Hour picker should retain value")
-        XCTAssertTrue(minutePickerWheel.value as? String == "00", "Minute picker should retain value")
-        XCTAssertTrue(quarterlyButton.isSelected, "Quarterly button should be selected")
-        XCTAssertTrue(app.staticTexts["30 days before expiration"].exists, "Days before expiration should be 30")
-        let app = XCUIApplication()
-        app.activate()
-        app/*@START_MENU_TOKEN@*/.buttons["Settings"]/*[[".buttons.containing(.image, identifier: \"bell.fill\")",".otherElements.buttons[\"Settings\"]",".buttons[\"Settings\"]"],[[[-1,2],[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
-        app/*@START_MENU_TOKEN@*/.staticTexts["Reminder Settings"].firstMatch.swipeUp()/*[[".otherElements.staticTexts[\"Reminder Settings\"].firstMatch",".swipeUp()",".swipeRight()",".staticTexts[\"Reminder Settings\"].firstMatch"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,1]]@END_MENU_TOKEN@*/
-        app/*@START_MENU_TOKEN@*/.buttons["Reset to Defaults"]/*[[".otherElements.buttons[\"Reset to Defaults\"]",".buttons[\"Reset to Defaults\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
+        XCTAssertEqual(hourPicker.value as? String, "12", "Hour should reset to default")
+        XCTAssertEqual(minutePicker.value as? String, "00", "Minute should reset to default")
+        XCTAssertTrue(app.buttons[A11y.Settings.frequencyQuarterly].isSelected, "Quarterly should be selected")
+        XCTAssertTrue(app.staticTexts["30 days before expiration"].exists, "Lead days should be 30")
     }
 
     // MARK: - Database Backup Tests
@@ -98,37 +103,17 @@ final class SettingsAndNotificationsUITests: XCTestCase {
     func testExportDataButton() throws {
         app.tabBars.buttons["Backup"].tap()
 
-        // Look for export/backup buttons
-        let exportButtons = [
-            app.buttons.containing(.staticText, identifier: "Export Database Files").firstMatch,
-        ]
-
-        for exportButton in exportButtons {
-            if exportButton.exists {
-                // We don't actually tap it to avoid triggering system dialogs
-                XCTAssertTrue(exportButton.exists, "Export functionality should be available")
-                return
-            }
-        }
-        XCTFail("No export button found")
+        // We don't actually tap it to avoid triggering system dialogs.
+        let exportButton = app.buttons.containing(.staticText, identifier: "Export Database Files").firstMatch
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 3), "Export functionality should be available")
     }
 
     @MainActor
     func testImportDataButton() throws {
         app.tabBars.buttons["Backup"].tap()
 
-        // Look for import/restore buttons
-        let importButtons = [
-            app.buttons.containing(.staticText, identifier: "Import Database Files").firstMatch,
-        ]
-
-        for importButton in importButtons {
-            if importButton.exists {
-                // We don't actually tap it to avoid triggering file pickers
-                XCTAssertTrue(importButton.exists, "Import functionality should be available")
-                return
-            }
-        }
-        XCTFail("No import button found")
+        // We don't actually tap it to avoid triggering file pickers.
+        let importButton = app.buttons.containing(.staticText, identifier: "Import Database Files").firstMatch
+        XCTAssertTrue(importButton.waitForExistence(timeout: 3), "Import functionality should be available")
     }
 }

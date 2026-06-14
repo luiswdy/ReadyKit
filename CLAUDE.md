@@ -19,9 +19,11 @@ xcodebuild -project ReadyKit.xcodeproj -scheme ReadyKit -destination 'platform=i
 
 Tests use Swift Testing (`@Test`, `#expect`) — not XCTest. Test targets:
 - `ReadyKitAlertTests/` — unit tests for use cases, mappers, entities
-- `ReadyKitAlertUITests/` — UI tests
+- `ReadyKitAlertUITests/` — UI tests (XCTest)
 
-Reset the test database by passing `--reset` as a launch argument (handled in `DependencyContainer.createModelContainerForTesting()`).
+**UI test isolation**: all UI tests launch with `--uitesting` via `XCUIApplication.launchForUITesting()` (defined in `UITestUtilities.swift`). When the app sees `--uitesting` it uses an in-memory SwiftData store and a freshly-cleared isolated `UserDefaults` suite, so tests never touch real persisted data. Do not use `--reset` in UI tests. `--reset` is for nuking the on-disk store in manual debug sessions only.
+
+**Accessibility identifiers**: stable, locale-independent identifiers used by UI tests are defined in `Shared/AccessibilityIdentifiers.swift` (`enum A11y`), which is compiled into both the app target and the `ReadyKitUITests` target. Add new identifiers there; apply them in views with `.accessibilityIdentifier(A11y.ScreenName.controlName)`; reference the same symbol in tests.
 
 ## Architecture
 

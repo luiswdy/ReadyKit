@@ -64,19 +64,23 @@ struct ItemDetailViewBody: View {
                                 }
                             }
                             .disabled(viewModel.isLoading)
+                            .accessibilityIdentifier(A11y.ItemDetail.saveButton)
                         }
                     } else {
                         Menu {
                             Button("Edit") {
                                 viewModel.startEditing()
                             }
+                            .accessibilityIdentifier(A11y.ItemDetail.editButton)
 
                             Button("Delete", role: .destructive) {
                                 showingDeleteConfirmation = true
                             }
+                            .accessibilityIdentifier(A11y.ItemDetail.deleteButton)
                         } label: {
                             Image(systemName: "ellipsis.circle")
                         }
+                        .accessibilityIdentifier(A11y.ItemDetail.moreButton)
                     }
                 }
             }
@@ -236,13 +240,16 @@ struct ItemDetailViewBody: View {
             Section("Item Information") {
                 TextField("Name", text: $viewModel.editedName)
                     .textInputAutocapitalization(.words)
+                    .accessibilityIdentifier(A11y.ItemDetail.nameField)
 
                 HStack {
                     TextField("Quantity", text: $viewModel.editedQuantityValue)
                         .keyboardType(.numberPad)
+                        .accessibilityIdentifier(A11y.ItemDetail.quantityField)
 
                     TextField("Unit", text: $viewModel.editedQuantityUnit)
                         .textInputAutocapitalization(.never)
+                        .accessibilityIdentifier(A11y.ItemDetail.unitField)
                 }
             }
 

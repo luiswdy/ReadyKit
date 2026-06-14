@@ -8,8 +8,12 @@
 import Foundation
 
 final class UserDefaultsUserPreferencesRepository: UserPreferencesRepository {
-    private let userDefaults = UserDefaults.standard
+    private let userDefaults: UserDefaults
     private let preferencesKey = AppConstants.UserDefaultUserPreferencesKey.userPreferencesKey
+
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+    }
 
     func load() -> UserPreferences {
         let defaultPreferences = UserPreferences(
