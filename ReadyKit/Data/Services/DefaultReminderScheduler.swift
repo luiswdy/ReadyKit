@@ -92,7 +92,9 @@ final class DefaultReminderScheduler: ReminderScheduler {
             if let error = error {
                 self?.logger.logError("Failed to schedule persistent expiry reminder: \(error.localizedDescription)")
             } else {
-                self?.logger.logInfo("Scheduled persistent expiry reminder (repeats daily at user's notification time)")
+                let h = userPreferences.dailyNotificationTime.hour ?? 0
+                let m = userPreferences.dailyNotificationTime.minute ?? 0
+                self?.logger.logInfo("Scheduled persistent expiry reminder (repeats daily at \(h):\(String(format: "%02d", m)))")
             }
         }
     }
@@ -190,6 +192,31 @@ final class DefaultReminderScheduler: ReminderScheduler {
                 }
             }
         }
+
+        if let lastChanceDate = Calendar.current.date(byAdding: .day, value: -1, to: earliestExpiration),
+           lastChanceDate > Date() {
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: lastChanceDate)
+            components.hour = userPreferences.dailyNotificationTime.hour
+            components.minute = userPreferences.dailyNotificationTime.minute
+            components.timeZone = userPreferences.dailyNotificationTime.timeZone ?? .current
+
+            let content = buildExpiryNotificationContent(
+                categoryIdentifier: AppConstants.Notification.CategoryIdentifier.expiryBatch
+            )
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: AppConstants.Notification.RequestIdentifier.expiryLastChance,
+                content: content,
+                trigger: trigger
+            )
+            notificationCenter.add(request) { [weak self] error in
+                if let error = error {
+                    self?.logger.logError("Failed to schedule expiry last-chance: \(error.localizedDescription)")
+                } else {
+                    self?.logger.logInfo("Scheduled expiry last-chance for \(lastChanceDate)")
+                }
+            }
+        }
     }
 
     // MARK: - Regular check reminder
@@ -227,7 +254,9 @@ final class DefaultReminderScheduler: ReminderScheduler {
                 if let error = error {
                     self?.logger.logError("Failed to schedule regular check reminder [\(index)]: \(error.localizedDescription)")
                 } else {
-                    self?.logger.logInfo("Scheduled regular check reminder [\(index)]")
+                    let h = userPreferences.dailyNotificationTime.hour ?? 0
+                    let m = userPreferences.dailyNotificationTime.minute ?? 0
+                    self?.logger.logInfo("Scheduled regular check reminder [\(index)] for month \(month) at \(h):\(String(format: "%02d", m))")
                 }
             }
         }

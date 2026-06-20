@@ -108,6 +108,7 @@ enum AppConstants {
             static let regularCheckPrefix = "regular-check-"
             static let snoozedRegularCheck = "snoozed-regular-check"
             static let expiryBatchPrefix = "expiry-batch-"
+            static let expiryLastChance = "expiry-last-chance"
             static let persistentExpiryReminder = "persistent-expiry-reminder"
         }
 

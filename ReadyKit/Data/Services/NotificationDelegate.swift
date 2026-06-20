@@ -86,7 +86,8 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
             let batchIdentifiers = (0..<AppConstants.Notification.ExpiryBatch.size).map {
                 AppConstants.Notification.expiryBatchIdentifier(for: $0)
             }
-            notificationCenter.removePendingNotificationRequests(withIdentifiers: batchIdentifiers)
+            let allExpiryIdentifiers = batchIdentifiers + [AppConstants.Notification.RequestIdentifier.expiryLastChance]
+            notificationCenter.removePendingNotificationRequests(withIdentifiers: allExpiryIdentifiers)
 
             let prefsResult = loadUserPreferencesUseCase.execute()
             if case .success(let prefs) = prefsResult {
