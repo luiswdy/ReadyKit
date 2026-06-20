@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-06-20
+
+### Added
+- Last-chance expiry notification delivered one day before an item expires, giving users a final prompt before the expiry date arrives.
+- "Keep reminding me" action on batch expiry notifications: tapping it cancels remaining one-shot batch notifications and switches to a daily persistent reminder, so users are notified every day until they address expiring or expired items.
+
+### Changed
+- Overhauled the expiry notification system for reliability. Notifications now follow two paths: batch one-shot reminders (Path A) for items approaching but not yet past the lead window, and a repeating time-sensitive daily reminder (Path B) for items that are already expiring or expired. The persistent reminder survives swipe-away without requiring the app to reopen.
+- `scheduleReminders()` is now `@MainActor`-enforced and `removeNonSnoozePendingReminders()` is now fully `async`, eliminating a class of thread-safety issues in notification scheduling.
+
+### Fixed
+- Fixed a crash caused by calling `scheduleReminders()` off the main actor.
+- Fixed minimum item quantity validation: items now require a quantity of at least 1 (previously 0 was accepted).
+
 ## [1.3.0] - 2026-01-03
 
 ### Fixed
