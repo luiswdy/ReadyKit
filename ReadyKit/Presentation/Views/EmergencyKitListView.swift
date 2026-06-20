@@ -41,6 +41,7 @@ struct EmergencyKitListViewBody: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityIdentifier(A11y.KitList.addButton)
                 }
 
                 ToolbarItem(placement: .topBarLeading) {
@@ -139,6 +140,7 @@ struct EmergencyKitListViewBody: View {
                         Label("Edit", systemImage: "pencil")
                     }
                     .tint(.blue)
+                    .accessibilityIdentifier(A11y.KitList.editAction)
 
                     Button {
                         emergencyKitToDelete = emergencyKit
@@ -147,6 +149,7 @@ struct EmergencyKitListViewBody: View {
                         Label("Delete", systemImage: "trash")
                     }
                     .tint(.red)
+                    .accessibilityIdentifier(A11y.KitList.deleteAction)
                 }
             }
             .onDelete(perform: deleteEmergencyKits)

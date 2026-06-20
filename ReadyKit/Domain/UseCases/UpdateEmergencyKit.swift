@@ -27,7 +27,11 @@ final class EditEmergencyKitUseCase {
         do {
             var emergencyKit = try repository.fetchEmergencyKit(by: request.id)
             if let name = request.name {
-                emergencyKit.name = name
+                let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else {
+                    throw EmergencyKitValidationError.emptyName(name)
+                }
+                emergencyKit.name = trimmed
             }
             if let items = request.items {
                 emergencyKit.items = items
@@ -36,7 +40,11 @@ final class EditEmergencyKitUseCase {
                 emergencyKit.photo = request.photo
             }
             if let location = request.location {
-                emergencyKit.location = location
+                let trimmed = location.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else {
+                    throw EmergencyKitValidationError.emptyLocation(location)
+                }
+                emergencyKit.location = trimmed
             }
             try repository.updateEmergencyKit(emergencyKit)
             return .success(())

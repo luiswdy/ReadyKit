@@ -35,88 +35,6 @@
         }
       }
     },
-    "‼️ Expired: %lld items." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Expired: %lld item."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Expired: %lld items."
-                }
-              }
-            }
-          }
-        },
-        "es-419" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Vencido: %lld artículo."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Vencidos: %lld artículos."
-                }
-              }
-            }
-          }
-        },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ 期限切れ：%lld個のアイテム。"
-                }
-              }
-            }
-          }
-        },
-        "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Expirado: %lld item."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ Expirados: %lld itens."
-                }
-              }
-            }
-          }
-        },
-        "zh-Hant" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "‼️ 已過期：%lld 個物品。"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "%lld" : {
       "localizations" : {
         "en" : {
@@ -539,122 +457,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⏰ 該檢查您的緊急避難包了！"
-          }
-        }
-      }
-    },
-    "⚠️ Nearing Expiration: %lld items." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Nearing Expiration: %lld item."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Nearing Expiration: %lld items."
-                }
-              }
-            }
-          }
-        },
-        "es-419" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Próximo a vencer: %lld artículo."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Próximos a vencer: %lld artículos."
-                }
-              }
-            }
-          }
-        },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ まもなく期限切れ：%lld個のアイテム。"
-                }
-              }
-            }
-          }
-        },
-        "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Próximo da expiração: %lld item."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ Próximos da expiração: %lld itens."
-                }
-              }
-            }
-          }
-        },
-        "zh-Hant" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "⚠️ 即將過期：%lld 個物品。"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "✅ All emergency items are current and in good condition." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "✅ All emergency items are current and in good condition."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "✅ Todos los artículos de emergencia están al día y en buen estado."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "✅ すべての防災セットは期限内で、良好な状態です。"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "✅ Todos os itens de emergência estão atualizados e em boas condições."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "✅ 所有緊急避難包均未過期且狀況良好。"
           }
         }
       }
@@ -2091,41 +1893,6 @@
         }
       }
     },
-    "Emergency Items Expiry Reminder" : {
-      "comment" : "Title for emergency items expiry reminder notification",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Emergency Items Expiry Reminder"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recordatorio de vencimiento de artículos de emergencia"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "防災セットの期限切れリマインダー"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lembrete de Expiração de Itens de Emergência"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "緊急避難包到期提醒"
-          }
-        }
-      }
-    },
     "Emergency Items Regular Check Reminder" : {
       "comment" : "Title for emergency items regular check reminder notification",
       "localizations" : {
@@ -3036,7 +2803,7 @@
       }
     },
     "Expiring items detected" : {
-      "comment" : "Title for first expiring item alert notification",
+      "comment" : "Expiry notification title",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3066,6 +2833,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "偵測到即將過期的物品"
+          }
+        }
+      }
+    },
+    "⚠️Expiring/Expired items detected. Please check your emergency kits." : {
+      "comment" : "Expiry notification body",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️Se detectaron artículos vencidos o por vencer. Por favor, revisa tus kits de emergencia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️期限切れ、または期限が近いアイテムが見つかりました。防災セットを確認してください。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️Itens vencidos ou próximos do vencimento detectados. Por favor, verifique seus kits de emergência."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️偵測到即將過期/已過期的物資。請檢查您的緊急避難包。"
           }
         }
       }
@@ -4610,6 +4406,35 @@
         }
       }
     },
+    "Keep reminding me" : {
+      "comment" : "Action to establish a daily repeating expiry reminder",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir recordándome"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リマインダーを継続する"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar me lembrando"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "持續提醒我"
+          }
+        }
+      }
+    },
     "Loading..." : {
       "localizations" : {
         "en" : {
@@ -5322,6 +5147,35 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "好"
+          }
+        }
+      }
+    },
+    "Open App" : {
+      "comment" : "Action to open the app and review expiring items",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを開く"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir aplicativo"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟應用程式"
           }
         }
       }
@@ -7114,41 +6968,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每年"
-          }
-        }
-      }
-    },
-    "You have items that are expiring soon. Please open the app and check your emergency kit." : {
-      "comment" : "Body for first expiring item alert notification",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You have items that are expiring soon. Please open the app and check your emergency kit."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tiene artículos próximos a vencer. Por favor, abra la aplicación y revise su kit de emergencia."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "期限が近づいているアイテムがあります。アプリを開いて防災セットを確認してください。"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Você tem itens prestes a vencer. Por favor, abra o aplicativo e verifique seu kit de emergência."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您有即將過期的物品。請打開 App 確認您的緊急避難包。"
           }
         }
       }

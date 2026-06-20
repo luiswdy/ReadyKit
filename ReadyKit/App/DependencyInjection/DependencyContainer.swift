@@ -18,7 +18,7 @@ final class DependencyContainer: ObservableObject {
     /// Test-only database management utilities
     /// This section is completely excluded from production builds
     private static func resetDatabaseForTesting() {
-        guard CommandLine.arguments.contains("--reset") else { return }
+        guard CommandLine.arguments.contains(LaunchArgument.reset) else { return }
 
         let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
         let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
@@ -36,19 +36,22 @@ final class DependencyContainer: ObservableObject {
     /// Creates a ModelContainer with optional test database reset
     /// Only available in DEBUG builds
     static func createModelContainerForTesting() -> ModelContainer {
-        // Reset database if requested via command line argument
-        resetDatabaseForTesting()
-
-        // Create the model container normally
-        let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
-        let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
-
         let schema = Schema([
             EmergencyKitModel.self,
             ItemModel.self,
         ])
 
-        let modelConfiguration = ModelConfiguration(schema: schema, url: storeUrl, cloudKitDatabase: .none)
+        let modelConfiguration: ModelConfiguration
+        if CommandLine.arguments.contains(LaunchArgument.uiTesting) {
+            // UI tests get a fresh, isolated in-memory store on every launch.
+            modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        } else {
+            // Reset the on-disk store if requested, then use the normal file-backed store.
+            resetDatabaseForTesting()
+            let documentsURL = FileManager.default.urls(for: AppConstants.Database.defaultSearchPathDirectory, in: .userDomainMask).first!
+            let storeUrl = documentsURL.appendingPathComponent(AppConstants.Database.defaultDatabaseFilename)
+            modelConfiguration = ModelConfiguration(schema: schema, url: storeUrl, cloudKitDatabase: .none)
+        }
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -57,22 +60,51 @@ final class DependencyContainer: ObservableObject {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }
+
+    /// An isolated, freshly-cleared `UserDefaults` suite for UI testing, or `nil` in normal runs.
+    /// Keeps UI tests from reading or mutating the real `.standard` preferences.
+    static func uiTestingUserDefaults() -> UserDefaults? {
+        let suiteName = AppConstants.UserDefaultUserPreferencesKey.uiTestSuiteName
+        guard CommandLine.arguments.contains(LaunchArgument.uiTesting),
+              let suite = UserDefaults(suiteName: suiteName) else {
+            return nil
+        }
+        suite.removePersistentDomain(forName: suiteName)
+        return suite
+    }
     #endif
 
     // MARK: - Repositories
     lazy var emergencyKitRepository: EmergencyKitRepository = SwiftDataEmergencyKitRepository(context: modelContext)
     lazy var itemRepository: ItemRepository = SwiftDataItemRepository(context: modelContext)
-    lazy var userPreferencesRepository : UserPreferencesRepository = UserDefaultsUserPreferencesRepository()
-    lazy var notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService()
+    lazy var userPreferencesRepository: UserPreferencesRepository = {
+        #if DEBUG
+        return UserDefaultsUserPreferencesRepository(userDefaults: Self.uiTestingUserDefaults() ?? .standard)
+        #else
+        return UserDefaultsUserPreferencesRepository()
+        #endif
+    }()
+    lazy var notificationPermissionService: NotificationPermissionService = {
+        #if DEBUG
+        if CommandLine.arguments.contains(LaunchArgument.uiTesting) {
+            return UITestingNotificationPermissionService()
+        }
+        #endif
+        return UserNotificationPermissionService()
+    }()
 
     // MARK: - Services
     lazy var reminderScheduler: ReminderScheduler = DefaultReminderScheduler(
         repository: itemRepository,
-        notificationCenter: UNUserNotificationCenter.current(),
+        notificationCenter: userNotificationCenter,
         userPreferencesRepository: userPreferencesRepository
     )
 
-    lazy var notificationDelegate: NotificationDelegate = NotificationDelegate(reminderScheduler: reminderScheduler)
+    lazy var notificationDelegate: NotificationDelegate = NotificationDelegate(
+        reminderScheduler: reminderScheduler,
+        loadUserPreferencesUseCase: LoadUserPreferencesUseCase(userPreferencesRepository: userPreferencesRepository),
+        notificationCenter: userNotificationCenter
+    )
 
     lazy var backgroundModeService: BackgroundModeService = IOSBackgroundModeService()
 
@@ -168,11 +200,17 @@ final class DependencyContainer: ObservableObject {
     private let userNotificationCenter: UNUserNotificationCenter
 
     init(modelContext: ModelContext, userNotificationCenter: UNUserNotificationCenter = .current()) {
-        // Initialize ModelContext for SwiftData
         self.userNotificationCenter = userNotificationCenter
         self.modelContext = modelContext
-        self.emergencyKitRepository = SwiftDataEmergencyKitRepository(context: modelContext)
-        self.itemRepository = SwiftDataItemRepository(context: modelContext)
         self.userNotificationCenter.delegate = notificationDelegate
     }
 }
+
+#if DEBUG
+/// Treats notification permission as granted so UI tests can exercise the settings
+/// pickers deterministically, without depending on the simulator's system permission.
+private final class UITestingNotificationPermissionService: NotificationPermissionService {
+    func checkPermission() async -> NotificationPermission { .granted }
+    func requestPermission() async -> NotificationPermission { .granted }
+}
+#endif

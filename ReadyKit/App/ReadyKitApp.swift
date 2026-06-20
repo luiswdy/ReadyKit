@@ -58,22 +58,16 @@ struct ReadyKitApp: App {
             ContentView()
                 .modelContainer(sharedModelContainer)
                 .environmentObject(dependencyContainer)
-                .onAppear {
+                .task {
                     let checkBackgroundModeResult = dependencyContainer.checkBackgroundModeUseCase.getBackgroundRefreshStatus()
-
-                    guard checkBackgroundModeResult == .available else {
+                    if checkBackgroundModeResult != .available {
                         logger.logInfo("Background refresh is not available.")
-                        return
                     }
 
-                    var result = dependencyContainer.reminderScheduler.removeNonSnoozePendingReminders()
-                    switch result {
-                    case .success:
-                        logger.logInfo("Successfully removed non-snooze pending reminders.")
-                    case .failure(let error):
-                        logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
-                    }
-                    result = dependencyContainer.reminderScheduler.scheduleReminders()
+                    await dependencyContainer.reminderScheduler.removeNonSnoozePendingReminders()
+                    logger.logInfo("Removed non-snoozed pending reminders.")
+
+                    let result = dependencyContainer.reminderScheduler.scheduleReminders()
                     switch result {
                     case .success:
                         logger.logInfo("Successfully scheduled reminders.")

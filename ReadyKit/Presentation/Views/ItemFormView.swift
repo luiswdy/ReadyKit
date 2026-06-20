@@ -116,6 +116,7 @@ struct ItemFormView: View {
                         }
                     }
                     .disabled(!canSave || isSaving)
+                    .accessibilityIdentifier(A11y.ItemForm.saveButton)
                 }
             }
             .disabled(isSaving)
@@ -174,6 +175,7 @@ struct ItemFormView: View {
         Section("Item Details") {
             TextField("Item Name", text: $name)
                 .textInputAutocapitalization(.words)
+                .accessibilityIdentifier(A11y.ItemForm.nameField)
 
             quantityAndUnitRow
             customUnitField
@@ -185,6 +187,7 @@ struct ItemFormView: View {
             TextField("Quantity", text: $quantityText)
                 .keyboardType(.numberPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                .accessibilityIdentifier(A11y.ItemForm.quantityField)
 
             unitPicker
         }
@@ -198,6 +201,7 @@ struct ItemFormView: View {
             }
         }
         .pickerStyle(MenuPickerStyle())
+        .accessibilityIdentifier(A11y.ItemForm.unitPicker)
         .onChange(of: selectedPickerUnit) { oldValue, newValue in
             if !newValue.isEmpty {
                 unit = newValue
@@ -210,6 +214,7 @@ struct ItemFormView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .textFieldStyle(.roundedBorder)
+            .accessibilityIdentifier(A11y.ItemForm.customUnitField)
             .overlay(
                 HStack {
                     Spacer()
@@ -237,6 +242,7 @@ struct ItemFormView: View {
     private var expirationSection: some View {
         Section("Expiration") {
             Toggle("Has Expiration Date", isOn: $hasExpirationDate)
+                .accessibilityIdentifier(A11y.ItemForm.hasExpirationToggle)
 
             if hasExpirationDate {
                 DatePicker(
@@ -244,6 +250,7 @@ struct ItemFormView: View {
                     selection: $expirationDate,
                     displayedComponents: .date
                 )
+                .accessibilityIdentifier(A11y.ItemForm.expirationDatePicker)
             }
         }
     }

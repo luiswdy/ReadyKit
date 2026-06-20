@@ -104,7 +104,7 @@ final class ReminderSettingsViewModel {
             userPreferences = updatedPreferences
 
             // Automatically reschedule notifications with new settings
-            let rescheduleResult = dependencyContainer.rescheduleRemindersUseCase.execute()
+            let rescheduleResult = await dependencyContainer.rescheduleRemindersUseCase.execute()
             switch rescheduleResult {
             case .success:
                 break

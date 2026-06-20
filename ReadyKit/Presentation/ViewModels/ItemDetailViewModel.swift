@@ -137,16 +137,13 @@ class ItemDetailViewModel {
                     updatedItem: updatedItem
                 )
 
-                var result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
+                let result = dependencyContainer.editItemInEmergencyKitUseCase.execute(request: request)
                 switch result {
                 case .success:
                     item = updatedItem
                     // Reschedule notifications to reflect the updated item list
-                    result = dependencyContainer.rescheduleRemindersUseCase.execute()
-                    switch result {
-                    case .success:
-                        break
-                    case .failure(let error):
+                    let rescheduleResult = await dependencyContainer.rescheduleRemindersUseCase.execute()
+                    if case .failure(let error) = rescheduleResult {
                         errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
                     }
                     isEditing = false
@@ -190,11 +187,8 @@ class ItemDetailViewModel {
             switch result {
             case .success:
                 // Reschedule notifications to reflect the updated item list
-                result = dependencyContainer.rescheduleRemindersUseCase.execute()
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
+                let rescheduleResult = await dependencyContainer.rescheduleRemindersUseCase.execute()
+                if case .failure(let error) = rescheduleResult {
                     errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
                 }
                 return result
@@ -217,15 +211,12 @@ class ItemDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        var result = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: request)
+        let result = dependencyContainer.deleteItemInEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
             // Reschedule notifications to reflect the updated item list
-            result = dependencyContainer.rescheduleRemindersUseCase.execute()
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
+            let rescheduleResult = await dependencyContainer.rescheduleRemindersUseCase.execute()
+            if case .failure(let error) = rescheduleResult {
                 errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
             }
             isLoading = false
@@ -254,7 +245,7 @@ class ItemDetailViewModel {
             return .failure(ItemValidationError.invalidQuantityValueInput(editedQuantityValue))
         }
 
-        guard let quantity = Int(editedQuantityValue), quantity > AppConstants.Validation.minimumQuantityValue else {
+        guard let quantity = Int(editedQuantityValue), quantity >= AppConstants.Validation.minimumQuantityValue else {
             errorMessage = "Quantity must be a positive number"
             return .failure(ItemValidationError.invalidQuantityValueInput(editedQuantityValue))
         }

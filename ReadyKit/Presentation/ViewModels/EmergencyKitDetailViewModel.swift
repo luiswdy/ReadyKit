@@ -133,17 +133,16 @@ final class EmergencyKitDetailViewModel {
             itemPhoto: photo
         )
 
-        var result = container.addItemToEmergencyKitUseCase.execute(request: request)
+        let result = container.addItemToEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
             refreshEmergencyKit()
             // Reschedule notifications to reflect the updated item list
-            result = container.rescheduleRemindersUseCase.execute()
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+            Task {
+                let rescheduleResult = await container.rescheduleRemindersUseCase.execute()
+                if case .failure(let error) = rescheduleResult {
+                    errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                }
             }
         case .failure(let error):
             errorMessage = "Failed to add item: \(error.localizedDescription)"
@@ -161,17 +160,16 @@ final class EmergencyKitDetailViewModel {
             emergencyKitId: emergencyKit.id
         )
 
-        var result = container.deleteItemInEmergencyKitUseCase.execute(request: request)
+        let result = container.deleteItemInEmergencyKitUseCase.execute(request: request)
         switch result {
         case .success:
             refreshEmergencyKit() // Refresh to get updated emergency kit
             // Reschedule notifications to reflect the updated item list
-            result = container.rescheduleRemindersUseCase.execute()
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+            Task {
+                let rescheduleResult = await container.rescheduleRemindersUseCase.execute()
+                if case .failure(let error) = rescheduleResult {
+                    errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                }
             }
         case .failure(let error):
             errorMessage = "Failed to delete item: \(error.localizedDescription)"
@@ -298,12 +296,11 @@ final class EmergencyKitDetailViewModel {
             case .success:
                 refreshEmergencyKit()
                 // Reschedule notifications to reflect the updated item list
-                result = container.rescheduleRemindersUseCase.execute()
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
-                    errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                Task {
+                    let rescheduleResult = await container.rescheduleRemindersUseCase.execute()
+                    if case .failure(let error) = rescheduleResult {
+                        errorMessage = "Failed to reschedule reminders: \(error.localizedDescription)"
+                    }
                 }
             case .failure(let error):
                 errorMessage = "Failed to move item: \(error.localizedDescription)"

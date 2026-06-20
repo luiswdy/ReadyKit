@@ -44,6 +44,7 @@ struct EmergencyKitDetailViewBody: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier(A11y.ItemList.addButton)
             }
         }
         .refreshable {

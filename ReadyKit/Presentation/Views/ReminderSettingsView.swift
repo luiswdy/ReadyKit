@@ -40,6 +40,7 @@ private struct ReminderSettingsViewBody: View {
                             }
                         }
                         .disabled(viewModel.isSaving)
+                        .accessibilityIdentifier(A11y.Settings.saveButton)
                     }
                 }
             }
@@ -105,6 +106,7 @@ private struct ReminderSettingsViewBody: View {
                         .pickerStyle(WheelPickerStyle())
                         .frame(maxWidth: AppConstants.UI.wheelPickerMaxWidth)
                         .accessibilityLabel("Notification Hour")
+                        .accessibilityIdentifier(A11y.Settings.hourPicker)
 
                         Text(":")
                             .font(.title2)
@@ -117,6 +119,7 @@ private struct ReminderSettingsViewBody: View {
                         .pickerStyle(WheelPickerStyle())
                         .frame(maxWidth: AppConstants.UI.wheelPickerMaxWidth)
                         .accessibilityLabel("Notification Minute")
+                        .accessibilityIdentifier(A11y.Settings.minutePicker)
                     }
                     .frame(height: AppConstants.UI.formHeight)
 
@@ -191,6 +194,7 @@ private struct ReminderSettingsViewBody: View {
                         ForEach([RegularCheckFrequency.quarterly, .halfYearly, .yearly], id: \.self) { frequency in
                             Text(viewModel.regularCheckFrequencyDescription(frequency))
                                 .tag(frequency)
+                                .accessibilityIdentifier(A11y.Settings.frequencySegment(rawValue: frequency.rawValue))
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -219,6 +223,7 @@ private struct ReminderSettingsViewBody: View {
                 viewModel.resetToDefaults()
             }
             .foregroundColor(.blue)
+            .accessibilityIdentifier(A11y.Settings.resetButton)
         } footer: {
             Text("Reset all settings to their default values")
         }

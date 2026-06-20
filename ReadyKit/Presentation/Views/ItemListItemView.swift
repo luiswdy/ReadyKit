@@ -31,7 +31,7 @@ struct ItemListItemView: View {
                         showingPhotoViewer = true
                     }
             } else {
-                RoundedRectangle(cornerRadius:AppConstants.UI.Thumbnail.height)
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
                     .fill(Color.gray.opacity(AppConstants.UI.opacity))
                     .frame(width: AppConstants.UI.Thumbnail.width, height: AppConstants.UI.Thumbnail.height)
                     .overlay {
@@ -79,11 +79,13 @@ struct ItemListItemView: View {
                 Label(String(localized: "Copy"), systemImage: "doc.on.doc")
             }
             .tint(.blue)
+            .accessibilityIdentifier(A11y.ItemList.copyAction)
             Button(role: .destructive) {
                 onDelete()
             } label: {
                 Label(String(localized: "Delete"), systemImage: "trash")
             }
+            .accessibilityIdentifier(A11y.ItemList.deleteAction)
         }
         .fullScreenCover(isPresented: $showingPhotoViewer) {
             if let photoData = item.photo {

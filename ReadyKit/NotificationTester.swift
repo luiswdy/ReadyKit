@@ -8,7 +8,7 @@ class NotificationTester {
         content.title = "Test Regular Check"
         content.body = "⏰ Test notification with snooze button"
         content.sound = .default
-        content.categoryIdentifier = "REGULAR_CHECK_CATEGORY"
+        content.categoryIdentifier = AppConstants.Notification.CategoryIdentifier.regularCheck
         
         // Schedule for 5 seconds from now
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)

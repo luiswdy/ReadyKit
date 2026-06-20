@@ -10,10 +10,17 @@ import Foundation
 
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     private let reminderScheduler: ReminderScheduler
+    private let loadUserPreferencesUseCase: LoadUserPreferencesUseCase
+    private let notificationCenter: UNUserNotificationCenter
     private let logger: Logger
 
-    init(reminderScheduler: ReminderScheduler, logger: Logger = DefaultLogger.shared) {
+    init(reminderScheduler: ReminderScheduler,
+         loadUserPreferencesUseCase: LoadUserPreferencesUseCase,
+         notificationCenter: UNUserNotificationCenter = .current(),
+         logger: Logger = DefaultLogger.shared) {
         self.reminderScheduler = reminderScheduler
+        self.loadUserPreferencesUseCase = loadUserPreferencesUseCase
+        self.notificationCenter = notificationCenter
         self.logger = logger
         super.init()
         logger.logInfo("NotificationDelegate initialized")
@@ -37,31 +44,28 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 
         logger.logInfo("didReceive called - Notification ID: \(identifier), Action: \(actionIdentifier)")
 
-        // Leverage UNNotificationDismissActionIdentifier to detect dismissal of regular check and expiring item reminder
-        // and then reschedule reminders accordingly
-        if (identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
-            || identifier == AppConstants.Notification.RequestIdentifier.expiringItemsReminder
-            || identifier == AppConstants.Notification.RequestIdentifier.earliestExpiringItemAlert)
+        // Regular-check dismiss: reschedule so the pending set stays accurate.
+        // (Expiry batch and persistent reminder are self-managing: batch has remaining one-shots
+        // still pending, and the persistent reminder's repeating request survives swipe-away.)
+        if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
             && actionIdentifier == UNNotificationDismissActionIdentifier {
-            logger.logInfo("User dismissed the notification")
-            let removeReminderResult = reminderScheduler.removeNonSnoozePendingReminders()
-            switch removeReminderResult {
-            case .success:
-                logger.logInfo("Successfully removed non-snooze pending reminders")
-            case .failure(let error):
-                logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
+            logger.logInfo("User dismissed a regular-check notification; rescheduling.")
+            // completionHandler is called inside the Task so iOS keeps the background
+            // execution assertion alive until rescheduling finishes.
+            Task { @MainActor in
+                await reminderScheduler.removeNonSnoozePendingReminders()
+                let result = reminderScheduler.scheduleReminders()
+                if case .failure(let error) = result {
+                    logger.logError("Failed to reschedule reminders after regular-check dismissal: \(error.localizedDescription)")
+                }
+                completionHandler()
             }
-            let scheduleReminderResult = reminderScheduler.scheduleReminders()
-            switch scheduleReminderResult {
-            case .success:
-                logger.logInfo("Successfully scheduled reminders after dismissal")
-            case .failure(let error):
-                logger.logError("Failed to schedule reminders after dismissal: \(error.localizedDescription)")
-            }
+            return
         }
 
-        // handling regular check snooze action
-        if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix) || identifier == AppConstants.Notification.RequestIdentifier.snoozedRegularCheck {
+        // Regular check snooze actions
+        if identifier.hasPrefix(AppConstants.Notification.RequestIdentifier.regularCheckPrefix)
+            || identifier == AppConstants.Notification.RequestIdentifier.snoozedRegularCheck {
             switch actionIdentifier {
             case AppConstants.Notification.ActionIdentifier.snoozeADay:
                 scheduleSnoozeNotification(originalIdentifier: identifier,
@@ -70,13 +74,34 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
                 scheduleSnoozeNotification(originalIdentifier: identifier,
                                            snoozeInterval: AppConstants.Notification.RegularCheck.snoozeIntervalAnHour)
             default:
-                logger.logInfo("Unknown action for regular check notification: \(actionIdentifier)")
+                break
             }
-        } else if actionIdentifier == UNNotificationDefaultActionIdentifier {
-            logger.logInfo("User tapped notification (default action)")
-            // Handle default tap action here if needed
-        } else {
-            logger.logInfo("Unhandled notification interaction")
+        }
+
+        // "Keep reminding me" on a batch expiry notification:
+        // cancel remaining batch one-shots and establish the persistent daily repeating reminder.
+        // This transitions Path A → Path B so future deliveries survive swipe-away.
+        if actionIdentifier == AppConstants.Notification.ActionIdentifier.keepRemindingMe {
+            logger.logInfo("User tapped 'Keep reminding me'; transitioning to persistent expiry reminder.")
+            let batchIdentifiers = (0..<AppConstants.Notification.ExpiryBatch.size).map {
+                AppConstants.Notification.expiryBatchIdentifier(for: $0)
+            }
+            let allExpiryIdentifiers = batchIdentifiers + [AppConstants.Notification.RequestIdentifier.expiryLastChance]
+            notificationCenter.removePendingNotificationRequests(withIdentifiers: allExpiryIdentifiers)
+
+            let prefsResult = loadUserPreferencesUseCase.execute()
+            if case .success(let prefs) = prefsResult {
+                reminderScheduler.schedulePersistentExpiryReminder(userPreferences: prefs)
+                logger.logInfo("Persistent expiry reminder established after 'Keep reminding me' tap.")
+            } else {
+                logger.logError("Failed to load user preferences for persistent expiry reminder.")
+            }
+        }
+
+        // "Open App" and default tap: iOS brings the app to the foreground via the .foreground
+        // action option; ReadyKitApp.task handles rescheduling on appear.
+        if actionIdentifier == UNNotificationDefaultActionIdentifier {
+            logger.logInfo("User tapped notification body (default action).")
         }
 
         completionHandler()
@@ -95,7 +120,7 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         let snoozeIdentifier = "\(AppConstants.Notification.RequestIdentifier.snoozedRegularCheck)"
         let request = UNNotificationRequest(identifier: snoozeIdentifier, content: content, trigger: trigger)
 
-        UNUserNotificationCenter.current().add(request) { [weak self] error in
+        notificationCenter.add(request) { [weak self] error in
             if let error = error {
                 self?.logger.logError("Failed to schedule snoozed notification: \(error.localizedDescription)")
             } else {

@@ -48,35 +48,27 @@ final class ReminderBackgroundTaskScheduler {
         // background task :
         // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"io.wdy.ReadyKitApp.refresh"]
 
-        // Schedule the next refresh
-        logger.logInfo("Handling background reminder task...")
-        scheduleNextRefresh()
-
-        let result = reminderScheduler.removeNonSnoozePendingReminders()
-        switch result {
-        case .success:
-            logger.logInfo("Successfully removed non-snooze pending reminders")
-        case .failure(let error):
-            logger.logError("Failed to remove non-snooze pending reminders: \(error.localizedDescription)")
-        }
-        // Run on main thread
-        await MainActor.run {
-            let result = reminderScheduler.scheduleReminders()
-            switch result {
-            case .success:
-                logger.logInfo("Successfully scheduled reminders")
-            case .failure(let error):
-                logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
-            }
-        }
-
-        // Set the task expiration handler
+        // Register expiration handler before any async work so iOS can always
+        // call it if the task is killed mid-execution.
         task.expirationHandler = { [weak self] in
             self?.logger.logWarning("Background task expired before completion.")
             task.setTaskCompleted(success: false)
         }
 
-        // Mark the task as completed
+        logger.logInfo("Handling background reminder task...")
+        scheduleNextRefresh()
+
+        await reminderScheduler.removeNonSnoozePendingReminders()
+        logger.logInfo("Removed non-snoozed pending reminders")
+
+        let result = reminderScheduler.scheduleReminders()
+        switch result {
+        case .success:
+            logger.logInfo("Successfully scheduled reminders")
+        case .failure(let error):
+            logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
+        }
+
         logger.logInfo("Background reminder task completed successfully.")
         task.setTaskCompleted(success: true)
     }

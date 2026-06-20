@@ -19,17 +19,14 @@ final class UpdateAppBadgeForExpiringAndExpiredItemsUseCase {
         self.appBadgeManager = appBadgeManager
     }
     
-    func execute() -> UpdateAppBadgeForExpiringAndExpiredItemsResult {
+    @MainActor func execute() async -> UpdateAppBadgeForExpiringAndExpiredItemsResult {
         let userPreferences = userPreferencesRepository.load()
         let expiryReminderLeadDays = userPreferences.expiryReminderLeadDays
         do {
             let expiringItems = try itemRepository.fetchExpiring(within: expiryReminderLeadDays)
             let expiredItems = try itemRepository.fetchExpired()
             let totalCount = expiringItems.count + expiredItems.count
-            
-            Task {
-                try await appBadgeManager.setBadge(count: totalCount)
-            }
+            try await appBadgeManager.setBadge(count: totalCount)
         } catch {
             return .failure(error)
         }

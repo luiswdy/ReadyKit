@@ -39,8 +39,8 @@ struct DuplicateItemInEmergencyKitUseCaseTests {
         // Verify a new item was created
         let storedItems = mockRepository.getStoredItems()
         #expect(storedItems.count == 1)
-        
-        let duplicatedItem = storedItems.first!
+
+        let duplicatedItem = try #require(storedItems.first)
         #expect(duplicatedItem.id != originalItem.id) // Different ID
         #expect(duplicatedItem.name == originalItem.name) // Same name
         #expect(duplicatedItem.expirationDate == originalItem.expirationDate) // Same expiration
@@ -66,8 +66,8 @@ struct DuplicateItemInEmergencyKitUseCaseTests {
         #expect(mockRepository.duplicateCallCount == 1)
         let storedItems = mockRepository.getStoredItems()
         #expect(storedItems.count == 1)
-        
-        let duplicatedItem = storedItems.first!
+
+        let duplicatedItem = try #require(storedItems.first)
         #expect(duplicatedItem.expirationDate == nil)
         #expect(duplicatedItem.name == originalItem.name)
     }
@@ -88,7 +88,7 @@ struct DuplicateItemInEmergencyKitUseCaseTests {
         try useCase.execute(item: originalItem, emergencyKit: emergencyKit)
         
         let storedItems = mockRepository.getStoredItems()
-        let duplicatedItem = storedItems.first!
+        let duplicatedItem = try #require(storedItems.first)
         #expect(duplicatedItem.notes == originalItem.notes)
     }
     
@@ -178,7 +178,7 @@ struct DuplicateItemInEmergencyKitUseCaseTests {
         
         try useCase.execute(item: originalItem, emergencyKit: emergencyKit)
         
-        let duplicatedItem = mockRepository.getStoredItems().first!
+        let duplicatedItem = try #require(mockRepository.getStoredItems().first)
         
         // Verify all properties are preserved except ID
         #expect(duplicatedItem.id != originalItem.id)

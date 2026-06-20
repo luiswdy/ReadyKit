@@ -33,7 +33,7 @@ struct Item: Equatable, Hashable {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ItemValidationError.emptyName(name)
         }
-        guard quantityValue > 0 else {
+        guard quantityValue >= AppConstants.Validation.minimumQuantityValue else {
             throw ItemValidationError.invalidQuantityValue(quantityValue)
         }
         guard !quantityUnitName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

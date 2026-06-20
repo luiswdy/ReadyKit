@@ -20,12 +20,14 @@ class ContentViewModel {
 
     @MainActor
     func updateAppBadge() {
-        let result = updateAppBadgeUseCase.execute()
-        switch result {
-        case .success:
-            logger.logInfo("App badge updated successfully.")
-        case .failure(let error):
-            logger.logError("Failed to update app badge: \(error.localizedDescription)")
+        Task { @MainActor in
+            let result = await updateAppBadgeUseCase.execute()
+            switch result {
+            case .success:
+                logger.logInfo("App badge updated successfully.")
+            case .failure(let error):
+                logger.logError("Failed to update app badge: \(error.localizedDescription)")
+            }
         }
     }
 }
