@@ -45,10 +45,7 @@ final class SwiftDataEmergencyKitRepository: EmergencyKitRepository {
         let descriptor = FetchDescriptor<EmergencyKitModel>(predicate: #Predicate { $0.id == id })
         do {
             if let emergencyKitModel = try context.fetch(descriptor).first {
-                // Delete all items in the emergency kit first
-                for item in emergencyKitModel.items {
-                    context.delete(item)
-                }
+                // Items are removed by the relationship's .cascade delete rule
                 context.delete(emergencyKitModel)
                 try context.save()
             } else {

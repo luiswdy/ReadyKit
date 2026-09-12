@@ -277,34 +277,17 @@ class ItemDetailViewModel {
 
     // MARK: - Helper Methods
     func formatExpirationStatus() -> (text: String, color: Color) {
-        guard let expirationDate = item.expirationDate else {
-            return (String(localized: "No expiration date"), .secondary)
+        // Use user-configurable expiryReminderLeadDays
+        let userPreferencesResult = dependencyContainer.loadUserPreferencesUseCase.execute()
+        let leadDays: Int
+        switch userPreferencesResult {
+        case .success(let userPreferences):
+            leadDays = userPreferences.expiryReminderLeadDays
+        case .failure:
+            assertionFailure("As UserPreferences returns a default set to value, this should never happen.")
+            leadDays = AppConstants.UserPreferences.defaultExpiryReminderLeadDays
         }
-
-        let calendar = Calendar.current
-        let today = Date()
-
-        if expirationDate < today {
-            let daysExpired = calendar.dateComponents([.day], from: expirationDate, to: today).day ?? 0
-            return (String("Expired \(daysExpired) days ago"), .red)
-        } else {
-            let daysUntilExpiration = calendar.dateComponents([.day], from: today, to: expirationDate).day ?? 0
-            // Use user-configurable expiryReminderLeadDays
-            let userPreferencesResult = dependencyContainer.loadUserPreferencesUseCase.execute()
-            let leadDays: Int
-            switch userPreferencesResult {
-            case .success(let userPreferences):
-                leadDays = userPreferences.expiryReminderLeadDays
-            case .failure:
-                assertionFailure("As UserPreferences returns a default set to value, this should never happen.")
-                leadDays = AppConstants.UserPreferences.defaultExpiryReminderLeadDays
-            }
-            if daysUntilExpiration <= leadDays {
-                return (String( localized: "Expiring in \(daysUntilExpiration) days"), .orange)
-            } else {
-                return (String(localized: "Expires in \(daysUntilExpiration) days"), .green)
-            }
-        }
+        return ExpirationStatusFormatter.format(item.expirationStatus(leadDays: leadDays))
     }
 
     func formatQuantity() -> String {

@@ -153,11 +153,9 @@ final class ReminderSettingsViewModel {
     func requestNotificationPermission() {
         Task { @MainActor in
             notificationPermission = await dependencyContainer.notificationPermissionService.requestPermission()
-            switch notificationPermission {
-            case .granted:
-                notificationPermission = .granted
-            case .notGranted:
-                showSettingsAlert = true            }
+            if notificationPermission == .notGranted {
+                showSettingsAlert = true
+            }
         }
     }
 

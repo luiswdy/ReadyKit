@@ -21,7 +21,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ContentViewBody(dependencyContainer: dependencyContainer)
+        MainTabView()
             .onAppear {
                 updateAppBadgeForExpiringAndExpiredItems()
             }
@@ -44,25 +44,6 @@ struct ContentView: View {
                 logger.logError("Failed to update app badge: \(error.localizedDescription)")
             }
         }
-    }
-}
-
-private struct ContentViewBody: View {
-    let dependencyContainer: DependencyContainer
-    @State private var viewModel: ContentViewModel
-    
-    init(dependencyContainer: DependencyContainer) {
-        self.dependencyContainer = dependencyContainer
-        _viewModel = State(
-            wrappedValue: ContentViewModel(
-                updateAppBadgeUseCase: dependencyContainer.updateAppBadgeForExpiringAndExpiredItemsUseCase
-            )
-        )
-    }
-    
-    var body: some View {
-        MainTabView()
-            .environmentObject(dependencyContainer)
     }
 }
 

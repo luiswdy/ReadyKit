@@ -69,18 +69,13 @@ final class EmergencyKitDetailViewModel {
             leadDays = AppConstants.UserPreferences.defaultExpiryReminderLeadDays
         }
 
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: leadDays, to: Date()) ?? Date()
-        return emergencyKit.items.filter { item in
-            guard let expirationDate = item.expirationDate else { return false }
-            return expirationDate <= cutoffDate && expirationDate >= Date()
-        }.sorted { ($0.expirationDate ?? Date.distantFuture) < ($1.expirationDate ?? Date.distantFuture) }
+        return emergencyKit.items.filter { $0.isExpiring(withinDays: leadDays) }
+            .sorted { ($0.expirationDate ?? Date.distantFuture) < ($1.expirationDate ?? Date.distantFuture) }
     }
 
     var expiredItems: [Item] {
-        return emergencyKit.items.filter { item in
-            guard let expirationDate = item.expirationDate else { return false }
-            return expirationDate < Date()
-        }.sorted { ($0.expirationDate ?? Date.distantPast) > ($1.expirationDate ?? Date.distantPast) }
+        return emergencyKit.items.filter { $0.isExpired() }
+            .sorted { ($0.expirationDate ?? Date.distantPast) > ($1.expirationDate ?? Date.distantPast) }
     }
 
     var hasItems: Bool {
@@ -314,33 +309,16 @@ final class EmergencyKitDetailViewModel {
 
     // MARK: - Helper Methods
     func formatExpirationStatus(for item: Item) -> (text: String, color: Color) {
-        guard let expirationDate = item.expirationDate else {
-            return (String(localized: "No expiration"), .secondary)
+        // Use user-configurable expiryReminderLeadDays
+        let userPreferencesResult = container.loadUserPreferencesUseCase.execute()
+        let leadDays: Int
+        switch userPreferencesResult {
+        case .success(let userPreferences):
+            leadDays = userPreferences.expiryReminderLeadDays
+        case .failure:
+            assertionFailure("As UserPreferences returns a default set to value, this should never happen.")
+            leadDays = AppConstants.UserPreferences.defaultExpiryReminderLeadDays
         }
-
-        let calendar = Calendar.current
-        let today = Date()
-
-        if expirationDate < today {
-            let daysExpired = calendar.dateComponents([.day], from: expirationDate, to: today).day ?? 0
-            return (String(localized: "Expired \(daysExpired) days ago"), .red)
-        } else {
-            let daysUntilExpiration = calendar.dateComponents([.day], from: today, to: expirationDate).day ?? 0
-            // Use user-configurable expiryReminderLeadDays
-            let userPreferencesResult = container.loadUserPreferencesUseCase.execute()
-            let leadDays: Int
-            switch userPreferencesResult {
-            case .success(let userPreferences):
-                leadDays = userPreferences.expiryReminderLeadDays
-            case .failure:
-                assertionFailure("As UserPreferences returns a default set to value, this should never happen.")
-                leadDays = AppConstants.UserPreferences.defaultExpiryReminderLeadDays
-            }
-            if daysUntilExpiration <= leadDays {
-                return (String(localized: "Expiring in \(daysUntilExpiration) days"), .orange)
-            } else {
-                return (String(localized: "Expires in \(daysUntilExpiration) days"), .green)
-            }
-        }
+        return ExpirationStatusFormatter.format(item.expirationStatus(leadDays: leadDays))
     }
 }
