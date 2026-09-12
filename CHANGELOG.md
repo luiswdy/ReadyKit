@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-09-12
+
+### Added
+- Expired items now get a repeating daily reminder for a week after their expiry date, even if the app is never reopened, so nothing slips through unnoticed.
+
+### Changed
+- Rebuilt the expiry notification scheduling logic on a single, well-tested planner, closing edge cases in how batch, last-chance, and persistent reminders were timed relative to each other.
+- The app now re-checks for expiring/expired items every time it's brought to the foreground, not just on first launch, so long-running sessions stay up to date.
+- Consolidated expiration status text and coloring (expired / expiring soon / current) into one shared source, so the emergency kit list and item detail screens always agree on wording.
+
+### Fixed
+- Fixed an inconsistency where an item with no expiration date was labeled "No expiration" in one screen and "No expiration date" in another.
+
 ## [1.4.0] - 2026-06-20
 
 ### Added
