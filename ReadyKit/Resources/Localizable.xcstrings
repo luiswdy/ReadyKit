@@ -461,6 +461,70 @@
         }
       }
     },
+    "⚠️ Items in your emergency kit have expired. Please replace them." : {
+      "comment" : "Expired fallback notification body",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ Items in your emergency kit have expired. Please replace them."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ Hay artículos vencidos en tu kit de emergencia. Por favor, reemplázalos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ 防災セットのアイテムが期限切れです。交換してください。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ Itens do seu kit de emergência venceram. Por favor, substitua-os."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ 您的緊急避難包中有物資已過期，請更換。"
+          }
+        }
+      }
+    },
+    "⚠️Expiring/Expired items detected. Please check your emergency kits." : {
+      "comment" : "Expiry notification body",
+      "localizations" : {
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️Se detectaron artículos vencidos o por vencer. Por favor, revisa tus kits de emergencia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️期限切れ、または期限が近いアイテムが見つかりました。防災セットを確認してください。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️Itens vencidos ou próximos do vencimento detectados. Por favor, verifique seus kits de emergência."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️偵測到即將過期/已過期的物資。請檢查您的緊急避難包。"
+          }
+        }
+      }
+    },
     "Add Item" : {
       "localizations" : {
         "en" : {
@@ -2638,6 +2702,41 @@
         }
       }
     },
+    "Expired items in your kit" : {
+      "comment" : "Expired fallback notification title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expired items in your kit"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artículos vencidos en tu kit"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期限切れのアイテムがあります"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens vencidos no seu kit"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的緊急避難包中有已過期的物資"
+          }
+        }
+      }
+    },
     "Expires in %lld days" : {
       "localizations" : {
         "en" : {
@@ -2833,35 +2932,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "偵測到即將過期的物品"
-          }
-        }
-      }
-    },
-    "⚠️Expiring/Expired items detected. Please check your emergency kits." : {
-      "comment" : "Expiry notification body",
-      "localizations" : {
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️Se detectaron artículos vencidos o por vencer. Por favor, revisa tus kits de emergencia."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️期限切れ、または期限が近いアイテムが見つかりました。防災セットを確認してください。"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️Itens vencidos ou próximos do vencimento detectados. Por favor, verifique seus kits de emergência."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️偵測到即將過期/已過期的物資。請檢查您的緊急避難包。"
           }
         }
       }
@@ -4708,6 +4778,7 @@
       }
     },
     "No expiration" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -124,17 +124,19 @@ final class MockReminderScheduler: ReminderScheduler {
         // Implement if needed for tests
         // Currently left empty as it's not the focus of most tests
     }
-    
-    
+
+
     // Test state tracking
     private(set) var removePendingRemindersCalled = false
     private(set) var scheduleRemindersCalled = false
+    private(set) var schedulePersistentExpiryReminderCalled = false
+    private(set) var persistentExpiryReminderPreferences: UserPreferences?
     private(set) var callCount = 0
-    
+
     // Test configuration
     var shouldSucceed = true
     var errorToReturn: Error = DefaultReminderSchedulerError.failedToScheduleReminders(NSError(domain: "TestError", code: 1, userInfo: nil))
-    
+
     func removeNonSnoozePendingReminders() async {
         removePendingRemindersCalled = true
         callCount += 1
@@ -151,12 +153,18 @@ final class MockReminderScheduler: ReminderScheduler {
         }
     }
 
-    func schedulePersistentExpiryReminder(userPreferences: UserPreferences) {}
-    
+    func schedulePersistentExpiryReminder(userPreferences: UserPreferences) async {
+        schedulePersistentExpiryReminderCalled = true
+        persistentExpiryReminderPreferences = userPreferences
+        callCount += 1
+    }
+
     // Test helper methods
     func reset() {
         removePendingRemindersCalled = false
         scheduleRemindersCalled = false
+        schedulePersistentExpiryReminderCalled = false
+        persistentExpiryReminderPreferences = nil
         callCount = 0
         shouldSucceed = true
     }
@@ -218,37 +226,22 @@ final class MockLogger: Logger {
 
 // MARK: - Mock User Notification Center
 
-final class MockUserNotificationCenter {
-    
+final class MockUserNotificationCenter: UserNotificationCenter {
+
     // Test state tracking
     private(set) var pendingRequests: [UNNotificationRequest] = []
-    private(set) var deliveredNotifications: [UNNotification] = []
     private(set) var removedIdentifiers: [String] = []
+    private(set) var removedDeliveredIdentifiers: [String] = []
+    private(set) var registeredCategories: Set<UNNotificationCategory> = []
     private(set) var removeAllPendingCalled = false
-    
+
+    weak var delegate: UNUserNotificationCenterDelegate?
+
     // Test configuration
-    var shouldGrantPermission = true
-    var authorizationStatus: UNAuthorizationStatus = .notDetermined
     var shouldFailToSchedule = false
     var errorToThrow: Error = NSError(domain: "TestError", code: 1, userInfo: nil)
-    
-    func requestAuthorization(options: UNAuthorizationOptions, completionHandler: @escaping (Bool, Error?) -> Void) {
-        DispatchQueue.global().async {
-            if self.shouldFailToSchedule {
-                completionHandler(false, self.errorToThrow)
-            } else {
-                self.authorizationStatus = self.shouldGrantPermission ? .authorized : .denied
-                completionHandler(self.shouldGrantPermission, nil)
-            }
-        }
-    }
-    
-    func getNotificationSettings(completionHandler: @escaping (UNNotificationSettings) -> Void) {
-        // This would require more complex mocking of UNNotificationSettings
-        // For now, we'll keep it simple
-    }
-    
-    func add(_ request: UNNotificationRequest, withCompletionHandler completionHandler: ((Error?) -> Void)?) {
+
+    func add(_ request: UNNotificationRequest, withCompletionHandler completionHandler: (@Sendable (Error?) -> Void)?) {
         if shouldFailToSchedule {
             completionHandler?(errorToThrow)
         } else {
@@ -256,32 +249,44 @@ final class MockUserNotificationCenter {
             completionHandler?(nil)
         }
     }
-    
+
+    func pendingNotificationRequests() async -> [UNNotificationRequest] {
+        return pendingRequests
+    }
+
     func removeAllPendingNotificationRequests() {
         removeAllPendingCalled = true
         pendingRequests.removeAll()
     }
-    
+
     func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {
         removedIdentifiers.append(contentsOf: identifiers)
         pendingRequests.removeAll { request in
             identifiers.contains(request.identifier)
         }
     }
-    
-    func getPendingNotificationRequests(completionHandler: @escaping ([UNNotificationRequest]) -> Void) {
-        completionHandler(pendingRequests)
+
+    func removeDeliveredNotifications(withIdentifiers identifiers: [String]) {
+        removedDeliveredIdentifiers.append(contentsOf: identifiers)
     }
-    
+
+    func setNotificationCategories(_ categories: Set<UNNotificationCategory>) {
+        registeredCategories = categories
+    }
+
     // Test helper methods
     func reset() {
         pendingRequests.removeAll()
-        deliveredNotifications.removeAll()
         removedIdentifiers.removeAll()
+        removedDeliveredIdentifiers.removeAll()
+        registeredCategories = []
         removeAllPendingCalled = false
-        shouldGrantPermission = true
-        authorizationStatus = .notDetermined
         shouldFailToSchedule = false
+    }
+
+    /// Seeds a pending request directly (e.g. a snoozed reminder that should survive removal).
+    func seedPendingRequest(_ request: UNNotificationRequest) {
+        pendingRequests.append(request)
     }
     
     func getPendingRequestCount() -> Int {

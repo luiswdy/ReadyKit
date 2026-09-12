@@ -197,9 +197,9 @@ final class DependencyContainer: ObservableObject {
         regularCheck: AppConstants.UserPreferences.defaultRegularCheckFrequency
     )
 
-    private let userNotificationCenter: UNUserNotificationCenter
+    private let userNotificationCenter: UserNotificationCenter
 
-    init(modelContext: ModelContext, userNotificationCenter: UNUserNotificationCenter = .current()) {
+    init(modelContext: ModelContext, userNotificationCenter: UserNotificationCenter = UNUserNotificationCenter.current()) {
         self.userNotificationCenter = userNotificationCenter
         self.modelContext = modelContext
         self.userNotificationCenter.delegate = notificationDelegate

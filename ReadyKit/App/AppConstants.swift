@@ -75,7 +75,9 @@ enum AppConstants {
 
     enum BackgroundMode {
         static let taskIdentifier = "io.wdy.ReadyKitApp.refresh"
-        static let earliestBeginDate: Date =  Date(timeIntervalSinceNow: 1 * 24 * 60 * 60) // one day from now
+        // Computed per access — a stored `let` would freeze the date at first use and
+        // every later background-task submission would reuse the stale timestamp.
+        static var earliestBeginDate: Date { Date(timeIntervalSinceNow: 1 * 24 * 60 * 60) } // one day from now
     }
 
     enum MaxExpirationYearsFromNow {
@@ -109,6 +111,7 @@ enum AppConstants {
             static let snoozedRegularCheck = "snoozed-regular-check"
             static let expiryBatchPrefix = "expiry-batch-"
             static let expiryLastChance = "expiry-last-chance"
+            static let expiredFallbackPrefix = "expired-fallback-"
             static let persistentExpiryReminder = "persistent-expiry-reminder"
         }
 
@@ -116,8 +119,25 @@ enum AppConstants {
             static let size = 3
         }
 
+        enum ExpiredFallback {
+            static let size = 7
+        }
+
         static func expiryBatchIdentifier(for index: Int) -> String {
             "\(RequestIdentifier.expiryBatchPrefix)\(index)"
+        }
+
+        static func expiredFallbackIdentifier(for index: Int) -> String {
+            "\(RequestIdentifier.expiredFallbackPrefix)\(index)"
+        }
+
+        /// Every expiry-related request identifier the app can schedule. Used to clear
+        /// pending requests on the batch → persistent transition and to remove stale
+        /// delivered notifications once no items are expiring or expired.
+        static var allExpiryRequestIdentifiers: [String] {
+            (0..<ExpiryBatch.size).map(expiryBatchIdentifier(for:))
+                + (0..<ExpiredFallback.size).map(expiredFallbackIdentifier(for:))
+                + [RequestIdentifier.expiryLastChance, RequestIdentifier.persistentExpiryReminder]
         }
     }
 }

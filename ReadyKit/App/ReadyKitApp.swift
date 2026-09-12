@@ -53,6 +53,19 @@ struct ReadyKitApp: App {
         }
     }
 
+    private func rescheduleReminders() async {
+        await dependencyContainer.reminderScheduler.removeNonSnoozePendingReminders()
+        logger.logInfo("Removed non-snoozed pending reminders.")
+
+        let result = await dependencyContainer.reminderScheduler.scheduleReminders()
+        switch result {
+        case .success:
+            logger.logInfo("Successfully scheduled reminders.")
+        case .failure(let error):
+            logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -64,20 +77,19 @@ struct ReadyKitApp: App {
                         logger.logInfo("Background refresh is not available.")
                     }
 
-                    await dependencyContainer.reminderScheduler.removeNonSnoozePendingReminders()
-                    logger.logInfo("Removed non-snoozed pending reminders.")
-
-                    let result = dependencyContainer.reminderScheduler.scheduleReminders()
-                    switch result {
-                    case .success:
-                        logger.logInfo("Successfully scheduled reminders.")
-                    case .failure(let error):
-                        logger.logError("Failed to schedule reminders: \(error.localizedDescription)")
-                    }
+                    await rescheduleReminders()
                 }
                 .onChange(of: scenePhase) { oldValue, newValue in
-                    if newValue == .background {
+                    switch newValue {
+                    case .active:
+                        // Re-evaluate expiry state on every return to foreground — an app
+                        // kept warm in the background for weeks never re-runs `.task`, and
+                        // items may have expired in the meantime.
+                        Task { await rescheduleReminders() }
+                    case .background:
                         dependencyContainer.reminderBackgroundTaskScheduler.scheduleNextRefresh()
+                    default:
+                        break
                     }
                 }
         }
